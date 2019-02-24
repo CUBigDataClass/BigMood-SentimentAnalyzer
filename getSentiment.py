@@ -1,5 +1,6 @@
 class GetSentiment():
     def getSentiment(self,obj) :
+        #to do
         print("From getSentiment")
         print(obj["location"])
         sentScore = ['happy','angry','sad','happy','happy']
