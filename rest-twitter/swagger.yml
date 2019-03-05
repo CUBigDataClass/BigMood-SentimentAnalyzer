@@ -8,11 +8,11 @@ consumes:
 produces:
   - "application/json"
 
-basePath: "/api"
+basePath: "/bigmoodsentimentanalyzer"
 
 # Paths supported by the server application
 paths:
-  /tweets:
+  /trendsentiment:
     get:
       # Test basic functionality of api request with local data structure
       operationId: "get_tweets_local_db.read"
