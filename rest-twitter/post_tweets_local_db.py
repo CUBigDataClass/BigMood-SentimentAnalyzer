@@ -29,7 +29,7 @@ dummy_tweet_2 = {
 dummy_tweet_3 = {
         "woeid": "2367231",
         "location": "Boulder, Colorado",
-        "hashtag": "#FUCKCSU",
+        "hashtag": "#RALPHIE",
         "sentiment": "positive",
         "timestamp": get_timestamp()
     }     
