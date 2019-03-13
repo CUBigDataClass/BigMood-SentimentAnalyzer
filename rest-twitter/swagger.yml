@@ -1,0 +1,42 @@
+swagger: "2.0"
+info:
+  description: This is the swagger file that goes with our server code
+  version: "1.0.0"
+  title: Swagger REST Article
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+basePath: "/bigmoodsentimentanalyzer"
+
+# Paths supported by the server application
+paths:
+  /trendsentiment:
+    get:
+      # Test basic functionality of api request with local data structure
+      operationId: "get_tweets_local_db.read"
+      # operationId: "get_tweets_db.read"
+      tags:
+        - "Tweets"
+      summary: "The collection of tweets from mongo"
+      description: "Read the list of tweets"
+      responses:
+        200:
+          description: "Successful read tweets list operation"
+          schema:
+            type: "array"
+            items:
+              properties:
+                woeid:
+                  type: "string"
+                location:
+                  type: "string"
+                hashtag:
+                  type: "string"
+                sentiment:
+                  type: "string"
+                timestamp:
+                  type: "string"
+
+
