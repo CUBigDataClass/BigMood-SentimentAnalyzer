@@ -50,13 +50,17 @@ class TweetRetriever:
         #   * result_mode 'recent' returns all recent tweets (not just popular ones)
         #   * tweet_mode 'extended' prevents tweet text from being truncated
         #   * include_entities 'false' prevents Twitter from giving us extra unnecessary info
-        response = self.resource_search_tweets.get(q=query_str,
-                                                   geocode=geocode_str,
-                                                   lang='en',
-                                                   result_type='recent',
-                                                   tweet_mode='extended',
-                                                   count=100,
-                                                   include_entities='false')
-        # Extract only the tweet text from the response
-        tweets = [s.full_text for s in response.data.statuses]
+        try:
+            response = self.resource_search_tweets.get(q=query_str,
+                                                       geocode=geocode_str,
+                                                       lang='en',
+                                                       result_type='recent',
+                                                       tweet_mode='extended',
+                                                       count=100,
+                                                       include_entities='false')
+            # Extract only the tweet text from the response
+            tweets = [s.full_text for s in response.data.statuses]
+        except Exception as ex:
+            print('Error: {:s}'.format(str(ex)))
+            tweets = None
         return tweets
