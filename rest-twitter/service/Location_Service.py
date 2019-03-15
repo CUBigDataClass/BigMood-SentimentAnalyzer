@@ -38,7 +38,7 @@ class LocationService:
         except FileNotFoundError:
             print("Load file. File not found: " + file_location)
 
-    def get_cordinates_for_city(self, query):
+    def get_coordinates_for_city(self, query):
         _key = LocationCountryPair(query[CITY], query[COUNTRY])
         if _key in self.cache.keys():
             print("Cached results")
