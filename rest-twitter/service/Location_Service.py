@@ -60,7 +60,7 @@ class LocationService:
                 print(ex)
                 return {}
 
-    def get_city_boundry(self, query):
+    def get_city_boundary(self, query):
         try:
             response = Nominatim(user_agent=self.user_agent, bounded=True).geocode(query)
             bounding_box = []
