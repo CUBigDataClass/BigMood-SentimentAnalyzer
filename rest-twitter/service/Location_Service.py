@@ -38,7 +38,7 @@ class LocationService:
         except FileNotFoundError:
             print("Load file. File not found: " + file_location)
 
-    def getCordinatesforcity(self, query):
+    def get_cordinates_for_city(self, query):
         _key = LocationCountryPair(query[CITY], query[COUNTRY])
         if _key in self.cache.keys():
             print("Cached results")
@@ -60,7 +60,7 @@ class LocationService:
                 print(ex)
                 return {}
 
-    def getcityboundry(self, query):
+    def get_city_boundry(self, query):
         try:
             response = Nominatim(user_agent=self.user_agent, bounded=True).geocode(query)
             bounding_box = []
