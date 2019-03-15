@@ -1,9 +1,9 @@
 import os
-from birdy.twitter import AppClient
+from birdy.twitter import AppClient, TwitterClientError
 
 class TweetRetriever:
 
-    def __init__():
+    def __init__(self):
         '''Initialize TweetRetriever. For security, API keys associated with
             your Twitter app should be present in environment variables.'''
 
@@ -11,32 +11,32 @@ class TweetRetriever:
         self.consumer_key = os.environ.get('TWITTER_API_KEY')
         self.consumer_secret = os.environ.get('TWITTER_API_KEY_SECRET')
         # Ensure API keys are present in environment variables.
-        if self.consumer_key == 'None' or self.consumer_secret == 'None'
+        if None in [self.consumer_key, self.consumer_secret]:
             raise EnvironmentError('At least one Twitter API key is not present in the environment')
         else:
             print('Twitter API key and secret key loaded')
-        self.client = _initialize_client()
-        if client is not None:
+        self.client = self._initialize_client()
+        if self.client is not None:
             self.resource_search_tweets = self.client.api.search.tweets
         else:
             print('Failed to initialize TweetRetriever')
 
-    def _initialize_client():
+    def _initialize_client(self):
         '''Initialize the birdy API client'''
 
         try:
             # Initialize our client object with consumer keys.
-            client = AppClient(consumer_key, consumer_secret)
+            client = AppClient(self.consumer_key, self.consumer_secret)
             # Obtain the OAuth2 access token using our consumer keys.
-            access_token = client.get_access_token()
+            self.access_token = client.get_access_token()
             # Re-initialize our client object that stores the access token for later use.
-            client = AppClient(consumer_key, consumer_secret, access_token)
+            client = AppClient(self.consumer_key, self.consumer_secret, self.access_token)
         except TwitterClientError as ex:
             print('Connection or access token retrievel error:' + str(ex))
             client = None
         return client
 
-    def get_tweets(trend, latitude, longitude, radius='25mi')
+    def get_tweets(self, trend, latitude, longitude, radius='25mi'):
         '''Returns tweets from Twitter's search/trends endpoint; there may be zero tweets!'''
 
         # Enclose trend in double-quotes for exact matching unless it's a hashtag
