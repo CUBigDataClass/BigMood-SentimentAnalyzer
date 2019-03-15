@@ -15,6 +15,19 @@ sys.path.append('../resources')
 class LocationService:
 
     def __init__(self, cache_location, cache_dump_interval):
+        """
+        Construct LocationService.
+        Initialize the constructor with location of cached csv file. The file will be used to initialize the cache at the time of object creation.
+        Also provide the time interval at which the current cache will be dumped at provided location.
+
+        See Location_Service_Test.py for usage.
+
+        :param string cache_location: canonical path of cache dump file.
+
+        :param int cache_dump_interval: an integer to set the dump interval
+
+        :return: LocationService Object
+        """
         self.user_agent = USER_AGENT
         self.cache = dict()
         self.geocoder = Nominatim(user_agent=self.user_agent)
@@ -39,6 +52,15 @@ class LocationService:
             print("Load file. File not found: " + file_location)
 
     def get_coordinates_for_city(self, query):
+        """
+        Method to get the geo coordinated for the query.
+
+        :param dict query: the query must be a python type dict. It must contain keys - CITY and COUNTRY which are defined in Constants.py
+
+        :return: A python type dict containing a LAT and LON as keys the each value is a floating point number.
+        In case if the API fails to get the geo coordinates for some weird reason, it prints the reason and returns an empty dict.
+        """
+
         _key = LocationCountryPair(query[CITY], query[COUNTRY])
         if _key in self.cache.keys():
             print("Cached results")
@@ -53,7 +75,7 @@ class LocationService:
                     self.cache_lat_lon(_key, lat_lon)
                     return lat_lon
                 else:
-                    print("Can not find lat lon for query:" + query)
+                    print("Can not find lat lon for query:" + str(query))
                     return lat_lon
 
             except Exception as ex:
@@ -61,6 +83,14 @@ class LocationService:
                 return {}
 
     def get_city_boundary(self, query):
+        """
+        Method to get the geo coordinated for the query.
+
+        :param dict query: the query must be a python type dict. It must contain keys - CITY and COUNTRY which are defined in Constant.py
+
+        :return: A python type list containing a (LAT, LON) pairs at each index. The list is always of size 4. In case if the API
+        fails to get bounding box for some weird reason, it prints the reason and return an empty list.
+        """
         try:
             response = Nominatim(user_agent=self.user_agent, bounded=True).geocode(query)
             bounding_box = []
