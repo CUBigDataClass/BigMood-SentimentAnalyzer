@@ -1,7 +1,11 @@
 import time
-from config.location_service_config import CACHE
-from service.Location_Service import *
+import sys
 import os
+
+sys.path.append(os.getcwd())
+
+from config.location_service_config import CACHE
+from Location_Service import *
 
 path = os.path.join(os.path.curdir, CACHE['location'])
 ls = LocationService(path, CACHE['dump_interval'])
