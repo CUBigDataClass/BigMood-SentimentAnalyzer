@@ -13,11 +13,10 @@ class SentimentAnalyzer:
         def computeSentiment(self,tweets):
                 compoundSum = 0
                 nTweets = 0
+                if len(tweets) == 0:
+                        return 0
                 for each in tweets:
                         nTweets += 1
                         compoundScore = self.sentimentAnalyzerScores(each)
                         compoundSum += compoundScore
-                if nTweets == 0:
-                        return 0
-                else:
-                        return compoundSum/nTweets
+                return compoundSum/nTweets
