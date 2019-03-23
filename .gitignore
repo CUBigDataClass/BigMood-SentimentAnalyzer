@@ -1,3 +1,4 @@
 rest-twitter/config/
 .idea
 rest-twitter/.vscode/
+*.pyc
