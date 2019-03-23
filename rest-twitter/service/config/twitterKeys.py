@@ -1,2 +1,2 @@
-consumer_key = "6LbBmYGg6MbBmndImr5DR7rB7"
-consumer_secret = "MI6tf0JmvaQK7B4a5UmL0RrpVZdjb5ArNJPugjhQTqOkFYBZyn"
+consumer_key = ""
+consumer_secret = ""
