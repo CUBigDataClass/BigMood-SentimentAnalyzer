@@ -16,7 +16,7 @@ print(os.getcwd())
 path = os.path.join(os.path.curdir, CACHE['location'])
 ls = LocationService(path, CACHE['dump_interval'])
 
-coords = ls.get_coordinates_for_city({'city': 'denver', 'country': 'US'})
+coords = ls.get_coordinates_for_city({'city': 'NULL', 'country': 'US'})
 tweets = tr.get_tweets('#laugh',coords[LAT],coords[LON])
 
 for each in tweets:
