@@ -39,7 +39,7 @@ class Cache_Dump(Thread):
         while True:
             print(self.getName() + " is running!")
             time.sleep(self.cache_dump_interval)
-            temp_file_name = self.file_path + str(time.time_ns())
+            temp_file_name = self.file_path + str(int(time.time()*1000))
             try:
                 self.dump_to_csv(temp_file_name, self.cache.copy())
                 if os.path.isfile(self.file_path):
