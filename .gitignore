@@ -1,4 +1,4 @@
-rest-twitter/config/
+rest-twitter/service/config/trends_service_config.py
 .idea
 rest-twitter/.vscode/
-
+sentiment-service/.elasticbeanstalk/
