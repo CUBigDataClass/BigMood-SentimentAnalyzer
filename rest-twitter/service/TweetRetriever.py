@@ -1,6 +1,6 @@
 import os
 from birdy.twitter import AppClient, TwitterClientError
-from config.twitterKeys import consumer_key, consumer_secret
+from config.twitter_keys import consumer_key, consumer_secret
 class TweetRetriever:
 
     def __init__(self):
