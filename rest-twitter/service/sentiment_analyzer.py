@@ -17,9 +17,9 @@ class SentimentAnalyzer:
                 return score['compound']
 
         def compute_sentiment(self,country, city, hashtag):
-                #calls Location Service to obtain LAT LON for a coutnry, city
-                #calls Tweet retriver to retrive tweets for a hashtag
-                #computes avg score
+                ''' calls Location Service to obtain LAT LON for a coutnry, city
+                calls Tweet retriver to retrive tweets for a hashtag
+                computes avg score '''
                 tr = TweetRetriever()
                 path = os.path.join(os.path.curdir, CACHE['location'])
                 ls = LocationService(path, CACHE['dump_interval'])
