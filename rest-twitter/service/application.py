@@ -4,9 +4,10 @@ from bson.json_util import dumps
 from datetime import datetime 
 import json 
 import computeSent
+from config.trends_service_config import DB
 
 # Connect to Mongo Store
-client = pymongo.MongoClient("mongodb://jpvm:jpvmtdb@18.191.169.163/tweets_db")
+client = pymongo.MongoClient("mongodb://" + DB['user'] + ":" + DB['password'] + "@" + DB['host'] + "/" + DB['database'])
 
 
 # Use tweets database
