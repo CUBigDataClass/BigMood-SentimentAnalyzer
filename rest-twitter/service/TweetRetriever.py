@@ -1,6 +1,6 @@
 import os
 from birdy.twitter import AppClient, TwitterClientError
-
+from config.twitter_keys import consumer_key, consumer_secret
 class TweetRetriever:
 
     def __init__(self, dev_env_name_30d='myDevEnv'):
@@ -10,8 +10,8 @@ class TweetRetriever:
 
         self.devenv_30d = dev_env_name_30d
         # Load consumer keys from environment variables.
-        self.consumer_key = os.environ.get('TWITTER_API_KEY')
-        self.consumer_secret = os.environ.get('TWITTER_API_KEY_SECRET')
+        self.consumer_key = consumer_key
+        self.consumer_secret = consumer_secret
         # Ensure API keys are present in environment variables.
         if None in [self.consumer_key, self.consumer_secret]:
             raise EnvironmentError('At least one Twitter API key is not present in the environment')
