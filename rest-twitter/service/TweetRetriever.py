@@ -1,6 +1,10 @@
 import os
 from birdy.twitter import AppClient, TwitterClientError
 from config.twitter_keys import consumer_key, consumer_secret
+import logging
+
+log = logging.getLogger(__name__)
+
 class TweetRetriever:
 
     def __init__(self, dev_env_name_30d='myDevEnv'):
@@ -8,21 +12,24 @@ class TweetRetriever:
             your Twitter app should be present in environment variables.
             dev_env_name_30d = dev environment label for your app displayed on Twitter's developer page'''
 
+        log.debug('Initializing {:s} with "{:s}" as dev environment name for 30day tweet search'.format(__name__, dev_env_name_30d))
         self.devenv_30d = dev_env_name_30d
-        # Load consumer keys from environment variables.
+        # Load consumer keys from imported configuration.
+        log.debug('Loading comsumer keys from configuration file')
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         # Ensure API keys are present in environment variables.
         if None in [self.consumer_key, self.consumer_secret]:
-            raise EnvironmentError('At least one Twitter API key is not present in the environment')
+            raise EnvironmentError('At least one Twitter API key is not present')
         else:
-            print('Twitter API key and secret key loaded')
+            log.info('Twitter API key and secret key loaded')
+        log.debug('Initializing Twitter client')
         self.client = self._initialize_client()
         if self.client is not None:
             self.resource_search_7day = self.client.api.search.tweets
             self.resource_search_30day = self.client.api['tweets/search/30day/{:s}'.format(self.devenv_30d)]
         else:
-            print('Failed to initialize TweetRetriever')
+            raise Exception('Failed to initialize TweetRetriever')
 
     def _initialize_client(self):
         '''Initialize the birdy API client'''
@@ -34,8 +41,9 @@ class TweetRetriever:
             self.access_token = client.get_access_token()
             # Re-initialize our client object that stores the access token for later use.
             client = AppClient(self.consumer_key, self.consumer_secret, self.access_token)
+            log.debug('Successfully initialized Twitter client')
         except TwitterClientError as ex:
-            print('Connection or access token retrievel error:' + str(ex))
+            log.warning('Connection or access token retrievel error:' + str(ex))
             client = None
         return client
 
@@ -54,22 +62,24 @@ class TweetRetriever:
             # Set up query and geocode strings according to Twitter's API specification
             query_str = '{:s} AND {:s}'.format(trend, filters)
             geocode_str = '{:s},{:s},{:s}'.format(str(latitude), str(longitude), radius)
+            log.debug('Calling 7day tweet search endpoint with "query={:s}" and "geocode={:s}"'.format(query_str, geocode_str))
             # Get response from Twitter!
             #   * result_mode 'recent' returns all recent tweets (not just popular ones)
             #   * tweet_mode 'extended' prevents tweet text from being truncated
             #   * include_entities 'false' prevents Twitter from giving us extra unnecessary info
             try:
                 response = self.resource_search_7day.get(q=query_str,
-                                                           geocode=geocode_str,
-                                                           lang='en',
-                                                           result_type='recent',
-                                                           tweet_mode='extended',
-                                                           count=100,
-                                                           include_entities='false')
+                                                         geocode=geocode_str,
+                                                         lang='en',
+                                                         result_type='recent',
+                                                         tweet_mode='extended',
+                                                         count=100,
+                                                         include_entities='false')
                 # Extract only the tweet text from the response
                 tweets = [s.full_text for s in response.data.statuses]
+                log.debug('Successfully extracted {:d} tweets from response'.format(len(tweets)))
             except Exception as ex:
-                print('Error: {:s}'.format(str(ex)))
+                log.error('No tweets extracted; suppressing error: {:s}'.format(str(ex)))
                 tweets = None
             return tweets
 
@@ -80,13 +90,14 @@ class TweetRetriever:
             # Build the geocode and query strings for the 30-day endpoint (different format than 7-day)
             geocode_str = 'point_radius:[{:s} {:s} {:s}]'.format(str(longitude), str(latitude), radius)
             query_str = '{:s} lang:en {:s}'.format(trend, geocode_str)
+            log.debug('Calling 30day tweet search endpoint with "query={:s}"'.format(query_str))
             try:
                 # Response is also slightly different than 7-day search response
-                print(query_str)
                 response = self.resource_search_30day.get(query=query_str)
                 tweets = [result.text for result in response.data['results']]
+                log.debug('Successfully extracted {:d} tweets from response'.format(len(tweets)))
             except Exception as ex:
-                print('Error: {:s}'.format(str(ex)))
+                log.error('No tweets extracted; suppressing error: {:s}'.format(str(ex)))
                 tweets = None
             return tweets
         
