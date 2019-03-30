@@ -1,4 +1,4 @@
-rest-twitter/config/
+rest-twitter/service/config/mongo_config.py
 .idea
 rest-twitter/.vscode/
-
+sentiment-service/.elasticbeanstalk/
