@@ -19,8 +19,8 @@ class TweetRetriever:
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         # Ensure API keys are present in environment variables.
-        if None in [self.consumer_key, self.consumer_secret]:
-            raise EnvironmentError('At least one Twitter API key is not present')
+        if 0 in [len(self.consumer_key), len(self.consumer_secret)]:
+            raise EnvironmentError('At least one Twitter API key is not defined in config.twitter_keys')
         else:
             log.info('Twitter API key and secret key loaded')
         log.debug('Initializing Twitter client')
