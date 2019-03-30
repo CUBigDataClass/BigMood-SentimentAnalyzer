@@ -4,10 +4,10 @@ from bson.json_util import dumps
 from datetime import datetime, timedelta
 import json 
 from sentiment_analyzer import computer_sentiment
-from config.mongo_config import DB
+from config.mongo_config import MONGO
 
 # MongoDB setup
-client = MongoClient(DB["MONGO_URI"])
+client = MongoClient(MONGO["URI"])
 # Use tweets database
 db = client.tweets_db 
 
