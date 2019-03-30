@@ -1,26 +1,24 @@
 from flask import Flask, request, jsonify
-import pymongo
+from pymongo import MongoClient
 from bson.json_util import dumps
-from datetime import datetime 
+from datetime import datetime, timedelta
 import json 
-import computeSent
-from config.trends_service_config import DB
+from sentiment_analyzer import computer_sentiment
+from config.mongo_config import DB
 
-# Connect to Mongo Store
-client = pymongo.MongoClient("mongodb://" + DB['user'] + ":" + DB['password'] + "@" + DB['host'] + "/" + DB['database'])
-
-
+# MongoDB setup
+client = MongoClient(DB["MONGO_URI"])
 # Use tweets database
 db = client.tweets_db 
 
-# Use sentiment collection
+# Use sentiment collection for storing purposes
 sentiments = db.sentiment_collection 
 
 
-# Elastic Beanstalk app setup
-
+# Elastic Beanstalk application setup
 # EB looks for an 'application' callable by default
 application = Flask(__name__)
+
 
 # function to get current timestamp used for get endpoint query parameters
 def get_timestamp():
@@ -34,64 +32,67 @@ def home():
 
 
 
-# Main function for handling GET and POST
-@application.route('/trendsentiment', methods=['GET', 'POST'])
-def trend_sentiment_handler():
+# Main function for handling GET request
+@application.route('/trendsentiment', methods=['GET'])
+def get_trend_sentiment():
 
-    # GET request with or without query parameters
-    if request.method == 'GET':
-        if request.args.get('startDate') is None and request.args.get('endDate') is None:
-            # return all available tweets
-            trends = [json.loads(dumps(trend)) for trend in sentiments.find({}, {"_id": 0})]
+    # GET request check for query parameters
+    try:
+        if request.method == 'GET':
+            if request.args.get('startDate') is None and request.args.get('endDate') is None:
+                # return tweets from one day ago
+                trends = [json.loads(dumps(trend)) for trend in sentiments.find({
+                    'timestamp': {'$gte': (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')}
+                }, {"_id": 0})]
+                return jsonify(trends = trends), 200
+            # store GET query parameters
+            start = datetime.strptime(request.args.get('startDate'), "%Y-%m-%d %H:%M:%S")
+            end = datetime.strptime(request.args.get('endDate'), "%Y-%m-%d %H:%M:%S")
 
-            return jsonify(trends = trends)
+            # query mongo for trend sentiment greater than or equal to start date
+            # and less than or equal to end date
+            trends = [json.loads(dumps(trend)) for trend in sentiments.find(
+                {
+                    '$and': [
+                        {'timestamp': {'$gte': start.strftime('%Y-%m-%d %H:%M:%S')}},
+                        {'timestamp': {'$lte': end.strftime('%Y-%m-%d %H:%M:%S')}}
+                    ]
+                },
+                {'_id': 0}
+            )]
+            return jsonify(trends = trends), 200
+    except Exception as e:
+        return dumps({'error': str(e)})
 
-        
-        # store GET query parameters
-        start = datetime.strptime(request.args.get('startDate'), "%Y-%m-%d %H:%M:%S")
-        end = datetime.strptime(request.args.get('endDate'), "%Y-%m-%d %H:%M:%S")
-
-        # query mongo for trend sentiment greater than or equal to start date
-        # and less than or equal to end date
-        trends = [json.loads(dumps(trend)) for trend in sentiments.find(
-            {
-                '$and': [
-                    {'timestamp': {'$gte': start.strftime('%Y-%m-%d %H:%M:%S')}},
-                    {'timestamp': {'$lte': end.strftime('%Y-%m-%d %H:%M:%S')}}
-                ]
-            },
-            {'_id': 0}
-        )]
-
-        return jsonify(trends = trends)
-
-
-
+@application.route("/trendsentiment", methods=['POST'])
+def post_trend_sentiment():
     # POST request with json, filter json for info we want to store
-    data = request.get_json()
+    if request.method == 'POST':
+        data = request.get_json()
 
-    storing = []
-
-    for d in data['data']:
-        schema = {
-            'country': d['country'],
-            'countryCode': d['countryCode'],
-            'locationType': d['locationType'],
-            'city': d.get('city', None),
-            'trends': [{
-                'trend' : tweet['name'],
-                'sentiment': computeSent.returnSent(d['country'], d['city'], tweet['name']),
-                'rank': tweet['rank'],
-                'tweetVolume': tweet['tweetVolume']
-                } for tweet in d['trends']],
-            'timestamp': get_timestamp()
-        }
-        storing.append(schema)
-
-    # store in mongo
-    sentiments.insert_many(storing)
-
-    return "201"
+        analyzed_tweets = []
+        
+        for trend_info in data['trends']:
+            schema = {
+                'country': trend_info['country'],
+                'countryCode': trend_info['countryCode'],
+                'locationType': trend_info['locationType'],
+                'city': trend_info.get('city', None),
+                'trends': [{
+                    'name' : tweet['name'],
+                    'sentiment': computer_sentiment(trend_info['country'], trend_info['city'], tweet['name']),
+                    'rank': tweet['rank'],
+                    'tweetVolume': tweet['tweetVolume']
+                    } for tweet in trend_info['twitterTrendInfo']],
+                'timestamp': get_timestamp()
+            }
+            analyzed_tweets.append(schema)
+        try:
+        # store all tweets that we have analyzed for sentiment in mongo
+            sentiments.insert_many(analyzed_tweets)
+            return dumps({'message': 'Succesfully created'})
+        except Exception as e:
+            return dumps({'error': str(e)})
 
 # run the app 
 if __name__ == "__main__":
@@ -99,7 +100,3 @@ if __name__ == "__main__":
     # removed before deploying a production app
     application.debug = True
     application.run()
-
-    
-
-    
