@@ -1,2 +1,3 @@
 geopy
 birdy
+vaderSentiment
