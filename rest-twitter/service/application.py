@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson.json_util import dumps
 from datetime import datetime, timedelta
-import json 
+import json
 from sentiment_analyzer import computer_sentiment
 from config.mongo_config import MONGO
 

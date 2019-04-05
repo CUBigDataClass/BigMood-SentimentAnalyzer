@@ -5,3 +5,4 @@ sentiment-service/.elasticbeanstalk/
 *.pyc
 __pycache__
 *.log
+*.DS_Store
