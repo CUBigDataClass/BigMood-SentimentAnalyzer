@@ -80,7 +80,7 @@ def post_trend_sentiment():
                 'city': trend_info.get('city', None),
                 'trends': [{
                     'name' : tweet['name'],
-                    'sentiment': computer_sentiment(trend_info['country'], trend_info['city'], tweet['name']),
+                    'sentiment': compute_sentiment(trend_info['country'], trend_info['city'], tweet['name']),
                     'rank': tweet['rank'],
                     'tweetVolume': tweet['tweetVolume']
                     } for tweet in trend_info['twitterTrendInfo']],
