@@ -5,7 +5,7 @@ python:
   - "3.7"
 # command to install dependencies
 install:
-  - pip install -r /rest-twitter/requirements.txt
+  - pip install -r ./rest-twitter/requirements.txt
 # command to run tests
 script:
   - echo "success"
