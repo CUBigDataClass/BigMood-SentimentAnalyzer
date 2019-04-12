@@ -42,7 +42,7 @@ pip install --upgrade pip virtualenv
 # git requires $HOME and it's not set during the startup script.
 export HOME=/root
 git config --global credential.helper gcloud.sh
-git clone https://source.cloud.google.com/bigmood-237300/bigmood-sentimentanalyzer/+/feature-gce-trends-sentiment-endpoint: /opt/app
+git clone --single-branch --branch feature-gce-trends-sentiment-endpoint https://github.com/CUBigDataClass/BigMood-SentimentAnalyzer.git /opt/app
 
 # Install app dependencies
 virtualenv -p python3 /opt/app/env

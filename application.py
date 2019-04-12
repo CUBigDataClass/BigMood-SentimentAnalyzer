@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from bson.json_util import dumps
 from datetime import datetime, timedelta
 import json 
-from sentiment_analyzer import SentimentAnalyzer
+from sentiment_service.sentiment_analyzer import SentimentAnalyzer
 from config.mongo_config import MONGO
 
 # MongoDB setup
