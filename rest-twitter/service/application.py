@@ -6,6 +6,7 @@ import json
 from sentiment_analyzer import compute_sentiment
 from config.mongo_config import MONGO
 
+
 # MongoDB setup
 client = MongoClient(MONGO["URI"])
 # Use tweets database
@@ -73,6 +74,7 @@ def post_trend_sentiment():
         analyzed_tweets = []
         
         for trend_info in data['trends']:
+
             schema = {
                 'country': trend_info['country'],
                 'countryCode': trend_info['countryCode'],
