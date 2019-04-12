@@ -2,8 +2,8 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson.json_util import dumps
 from datetime import datetime, timedelta
-import json
-from sentiment_analyzer import computer_sentiment
+import json 
+from sentiment_analyzer import compute_sentiment
 from config.mongo_config import MONGO
 
 # MongoDB setup
@@ -80,7 +80,7 @@ def post_trend_sentiment():
                 'city': trend_info.get('city', None),
                 'trends': [{
                     'name' : tweet['name'],
-                    'sentiment': computer_sentiment(trend_info['country'], trend_info['city'], tweet['name']),
+                    'sentiment': compute_sentiment(trend_info['country'], trend_info['city'], tweet['name']),
                     'rank': tweet['rank'],
                     'tweetVolume': tweet['tweetVolume']
                     } for tweet in trend_info['twitterTrendInfo']],
