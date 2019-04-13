@@ -4,11 +4,10 @@ import os
 
 sys.path.append(os.getcwd())
 
-from config.location_service_config import CACHE
+from config.mongo_config import DUMP_INTERVAL
 from Location_Service import *
 
-path = os.path.join(os.path.curdir, CACHE['location'])
-ls = LocationService(path, CACHE['dump_interval'])
+ls = LocationService(DUMP_INTERVAL['dump_interval'])
 
 print(ls.get_coordinates_for_city({'city': 'denver', 'country': 'US'}))
 time.sleep(5)

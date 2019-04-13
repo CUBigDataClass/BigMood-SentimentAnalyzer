@@ -2,18 +2,24 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from bson.json_util import dumps
 from datetime import datetime, timedelta
-import json 
-from sentiment_analyzer import compute_sentiment
+import json
+import os
+from sentiment_analyzer import SentimentAnalyzer
 from config.mongo_config import MONGO
+from Aggregator import Aggregator
 
+path = os.path.join(os.path.curdir, 'data/worldcities.csv')
 # MongoDB setup
 client = MongoClient(MONGO["URI"])
-# Use tweets database
-db = client.tweets_db 
+# Use sentiment database
+db = client.tweets_db
 
 # Use sentiment collection for storing purposes
-sentiments = db.sentiment_collection 
+sentiments = db.sentiment_collection
 
+sentiment_analyzer = SentimentAnalyzer()
+
+aggregator = Aggregator(path)
 
 # Elastic Beanstalk application setup
 # EB looks for an 'application' callable by default
@@ -31,11 +37,9 @@ def home():
     return '''<h1>Go to /trendsentiment</h1>'''
 
 
-
 # Main function for handling GET request
 @application.route('/trendsentiment', methods=['GET'])
 def get_trend_sentiment():
-
     # GET request check for query parameters
     try:
         if request.method == 'GET':
@@ -44,7 +48,7 @@ def get_trend_sentiment():
                 trends = [json.loads(dumps(trend)) for trend in sentiments.find({
                     'timestamp': {'$gte': (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')}
                 }, {"_id": 0})]
-                return jsonify(trends = trends), 200
+                return jsonify(trends=trends), 200
             # store GET query parameters
             start = datetime.strptime(request.args.get('startDate'), "%Y-%m-%d %H:%M:%S")
             end = datetime.strptime(request.args.get('endDate'), "%Y-%m-%d %H:%M:%S")
@@ -60,9 +64,10 @@ def get_trend_sentiment():
                 },
                 {'_id': 0}
             )]
-            return jsonify(trends = trends), 200
+            return jsonify(trends=trends), 200
     except Exception as e:
         return dumps({'error': str(e)})
+
 
 @application.route("/trendsentiment", methods=['POST'])
 def post_trend_sentiment():
@@ -71,32 +76,67 @@ def post_trend_sentiment():
         data = request.get_json()
 
         analyzed_tweets = []
-        
-        for trend_info in data['trends']:
-            schema = {
-                'country': trend_info['country'],
-                'countryCode': trend_info['countryCode'],
-                'locationType': trend_info['locationType'],
-                'city': trend_info.get('city', None),
-                'trends': [{
-                    'name' : tweet['name'],
-                    'sentiment': compute_sentiment(trend_info['country'], trend_info['city'], tweet['name']),
-                    'rank': tweet['rank'],
-                    'tweetVolume': tweet['tweetVolume']
-                    } for tweet in trend_info['twitterTrendInfo']],
-                'timestamp': get_timestamp()
-            }
+
+        #filter trends with country type and city type.
+        country_type_trends = list(filter(lambda twt: twt['locationType'] == 'Country', data['trends']))
+        city_type__trends = list(filter(lambda twt: twt['locationType'] == 'City', data['trends']))
+
+        #process them independently.
+        for trend_info in city_type__trends:
+            schema = compute_schema(trend_info)
             analyzed_tweets.append(schema)
+
+        country_trends = aggregator.aggr_city_country(country_type_trends, city_type__trends)
+
+        for trend_info in country_trends:
+            schema = compute_schema_country(trend_info)
+            analyzed_tweets.append(schema)
+
         try:
-        # store all tweets that we have analyzed for sentiment in mongo
+            # store all tweets that we have analyzed for sentiment in mongo
             sentiments.insert_many(analyzed_tweets)
             return dumps({'message': 'Succesfully created'})
         except Exception as e:
             return dumps({'error': str(e)})
 
-# run the app 
+
+def compute_schema(trend_info):
+    schema = {
+        'country': trend_info['country'],
+        'countryCode': trend_info['countryCode'],
+        'locationType': trend_info['locationType'],
+        'city': trend_info.get('city', None),
+        'trends': [{
+            'name': tweet['name'],
+            'sentiment': sentiment_analyzer.compute_sentiment(trend_info['country'], trend_info['city'], tweet['name']),
+            'rank': tweet['rank'],
+            'tweetVolume': tweet['tweetVolume']
+        } for tweet in trend_info['twitterTrendInfo']],
+        'timestamp': get_timestamp()
+    }
+    return schema
+
+
+def compute_schema_country(trend_info):
+    schema = {
+        'country': trend_info['country'],
+        'countryCode': trend_info['countryCode'],
+        'locationType': trend_info['locationType'],
+        'city': trend_info.get('city', None),
+        'trends': [{
+            'name': tweet['name'],
+            'sentiment': tweet['sentiment'],
+            'rank': tweet['rank'],
+            'tweetVolume': tweet['tweetVolume']
+        } for tweet in trend_info['twitterTrendInfo']],
+        'timestamp': get_timestamp()
+    }
+    return schema
+
+
+# run the app
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app
-    application.debug = True
+    application.debug = False
     application.run()
