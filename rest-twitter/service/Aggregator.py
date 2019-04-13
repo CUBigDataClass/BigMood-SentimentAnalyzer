@@ -82,32 +82,40 @@ class Aggregator:
         return state_trends
 
     def aggr_city_country_from_all_tweets(self, tweets):
-        country_type_trends = list(filter(lambda twt: twt['locationType'] == 'Country', tweets['data']))
-        city_trends = list(filter(lambda twt: twt['locationType'] == 'City', tweets['data']))
-        all_city_trends = list(itertools.chain(*list(map(lambda city_trend: city_trend['trends'], city_trends))))
+        country_type_trends = list(filter(lambda twt: twt['locationType'] == 'Country', tweets['trends']))
+        city_trends = list(filter(lambda twt: twt['locationType'] == 'City', tweets['trends']))
+        all_city_trends = list(
+            itertools.chain(*list(map(lambda city_trend: city_trend['twitterTrendInfo'], city_trends))))
 
         for country in country_type_trends:
-            for trend in country['trends']:
+            for trend in country['twitterTrendInfo']:
                 trends_match = list(filter(lambda c_trend: c_trend['name'] == trend['name'], all_city_trends))
                 avg_score = 0
                 if (len(trends_match) > 0):
-                    total_score = sum(map(lambda x: int(x['sentiment']), trends_match))
-                    avg_score = total_score / (len(trends_match))
+                    total_score = sum(map(lambda x: int(x['sentiment']) * int(x['tweetVolume']), trends_match))
+                    total_vol = sum(map(lambda x: int(x['tweetVolume']), trends_match))
+                    avg_score = total_score / total_vol
+                else:
+                    print("No matching trends found for cities in :" + trend['twitterTrendInfo'])
                 trend['sentiment'] = avg_score
 
         return country_type_trends
 
     def aggr_city_country(self, country_type_trends, city_trends):
 
-        all_city_trends = list(itertools.chain(*list(map(lambda city_trend: city_trend['trends'], city_trends))))
+        all_city_trends = list(
+            itertools.chain(*list(map(lambda city_trend: city_trend['twitterTrendInfo'], city_trends))))
 
         for country in country_type_trends:
-            for trend in country['trends']:
+            for trend in country['twitterTrendInfo']:
                 trends_match = list(filter(lambda c_trend: c_trend['name'] == trend['name'], all_city_trends))
                 avg_score = 0
                 if (len(trends_match) > 0):
-                    total_score = sum(map(lambda x: int(x['sentiment']), trends_match))
-                    avg_score = total_score / (len(trends_match))
+                    total_score = sum(map(lambda x: int(x['sentiment']) * int(x['tweetVolume']), trends_match))
+                    total_vol = sum(map(lambda x: int(x['tweetVolume']), trends_match))
+                    avg_score = total_score / total_vol
+                else:
+                    print("No matching trends found for cities in :" + trend['twitterTrendInfo'])
                 trend['sentiment'] = avg_score
 
         return country_type_trends

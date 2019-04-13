@@ -14,14 +14,14 @@ assert 'california' == aggregator.get_state('palo alto'), 'Failed'
 assert 'united states' == aggregator.get_state_country('colorado'), 'Failed'
 assert 'united states' == aggregator.get_state_country('california'), 'Failed'
 
-data = {'data': [{
+data = {'trends': [{
     'country': 'Dominican Republic',
     'countryCode': 'DO',
     'locationType': 'City',
     'city': 'Santo Domingo',
-    'trends': [{
+    'twitterTrendInfo': [{
         'name': '#Mueller',
-        'tweetVolume': 938119,
+        'tweetVolume': 5000,
         'rank': 1,
         'sentiment': 90,
         'url': 'http://twitter.com/search?q=%23TwoOfUs'
@@ -44,9 +44,9 @@ data = {'data': [{
         'countryCode': 'US',
         'locationType': 'City',
         'city': 'Boulder',
-        'trends': [{
+        'twitterTrendInfo': [{
             'name': '#Mueller',
-            'tweetVolume': 938119,
+            'tweetVolume': 3000,
             'rank': 1,
             'sentiment': 32,
             'url': 'http://twitter.com/search?q=%23TwoOfUs'
@@ -69,7 +69,7 @@ data = {'data': [{
         'country': 'United States',
         'countryCode': 'US',
         'locationType': 'Country',
-        'trends': [{
+        'twitterTrendInfo': [{
             'name': '#Mueller',
             'tweetVolume': 938119,
             'rank': 1,
@@ -79,11 +79,12 @@ data = {'data': [{
 
 res = aggregator.aggr_city_country_from_all_tweets(data)
 
-assert int(res[0]['trends'][0]['sentiment']), 'Failed aggregator'
-country_type_trends = list(filter(lambda twt: twt['locationType'] == 'Country', data['data']))
-city_trends = list(filter(lambda twt: twt['locationType'] == 'City', data['data']))
+assert int(res[0]['twitterTrendInfo'][0]['sentiment']) == 68, 'Failed aggregator'
+country_type_trends = list(filter(lambda twt: twt['locationType'] == 'Country', data['trends']))
+city_trends = list(filter(lambda twt: twt['locationType'] == 'City', data['trends']))
 
 res = aggregator.aggr_city_country(country_type_trends, city_trends)
-assert int(res[0]['trends'][0]['sentiment']), 'Failed aggregator'
+print(res)
+assert int(res[0]['twitterTrendInfo'][0]['sentiment']) == 68, 'Failed aggregator'
 
 print("all tests passed")

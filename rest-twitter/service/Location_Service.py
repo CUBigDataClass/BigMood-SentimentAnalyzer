@@ -1,53 +1,63 @@
 import sys
-import csv
 
 from geopy.geocoders import Nominatim
+from pymongo import MongoClient
+from pymongo import ASCENDING
 
 from helpers.Cache_Dump import Cache_Dump
 
 from models.Location_Country_Pair import LocationCountryPair
 
 from constants.Constants import *
+from config.mongo_config import MONGO
 
 sys.path.append('../resources')
 
 
 class LocationService:
 
-    def __init__(self, cache_location, cache_dump_interval):
+    def __init__(self, cache_dump_interval):
         """
         Construct LocationService.
-        Initialize the constructor with location of cached csv file. The file will be used to initialize the cache at the time of object creation.
-        Also provide the time interval at which the current cache will be dumped at provided location.
+        Provide the time interval at which the current cache will be dumped to the database.
 
         See Location_Service_Test.py for usage.
-
-        :param string cache_location: canonical path of cache dump file.
 
         :param int cache_dump_interval: an integer to set the dump interval
 
         :return: LocationService Object
         """
         self.user_agent = USER_AGENT
-        self.cache = dict()
+        self.local_cache = dict()
+        self.things_to_dump = dict()
         self.geocoder = Nominatim(user_agent=self.user_agent)
-        self.addressfile = cache_location
-        self.load_file(self.addressfile)
+
+        # MongoDB setup
+        self.client = MongoClient(MONGO["URI_CACHE"])
+        self.cache_db = self.client["cache_db"]
+        self.lat_lon_cache = self.cache_db["lat_lon_cache"]
+
+        create_index_out = self.lat_lon_cache.create_index([('location_id', ASCENDING)], unique=True)
+
+        self.load_from_database()
+
         self.cache_dump_interval = cache_dump_interval
-        self.dump_thread = Cache_Dump(self.addressfile, self.cache, self.cache_dump_interval)
+        self.dump_thread = Cache_Dump(self.lat_lon_cache, self.things_to_dump, self.cache_dump_interval)
         self.dump_thread.setDaemon(True)
         self.dump_thread.setName("Coordinates cache dumping thread")
         self.dump_thread.start()
 
-    def load_file(self, file_location):
+    def load_from_database(self):
         try:
-            with open(file_location) as file:
-                readcsv = csv.reader(file, delimiter=CSV_DELIM)
-                for _line in readcsv:
-                    # location,country_code,lat,long
-                    _key = LocationCountryPair(_line[0].strip(), _line[1].strip())
-                    _val = {LAT: float(_line[2]), LON: float(_line[3])}
-                    self.cache[_key] = _val
+            _all_item = self.lat_lon_cache.find()
+            for item in _all_item:
+                print(item)
+                # location,country_code,lat,long
+                _loc = item['location_id'].split('__')
+                _cords = item['coords']
+                _key = LocationCountryPair(_loc[0].strip(), _loc[1].strip())
+                _val = {LAT: float(_cords[LAT]), LON: float(_cords[LON])}
+                self.local_cache[_key] = _val
         except FileNotFoundError:
             print("Load file. File not found: " + file_location)
 
@@ -61,10 +71,10 @@ class LocationService:
         In case if the API fails to get the geo coordinates for some weird reason, it prints the reason and returns an empty dict.
         """
 
-        _key = LocationCountryPair(query[CITY], query[COUNTRY])
-        if _key in self.cache.keys():
-            print("Cached results")
-            return self.cache.get(_key)
+        _key = LocationCountryPair(query[CITY].strip().lower(), query[COUNTRY].strip().lower())
+        if _key in self.local_cache.keys():
+            print("Location service using Cached results")
+            return self.local_cache.get(_key)
         else:
             try:
                 response = self.geocoder.geocode(query)
@@ -105,4 +115,5 @@ class LocationService:
             return []
 
     def cache_lat_lon(self, key, lat_lon):
-        self.cache[key] = lat_lon
+        self.things_to_dump[key] = lat_lon
+        self.local_cache[key] = lat_lon
