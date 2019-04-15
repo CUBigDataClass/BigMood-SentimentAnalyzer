@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 
 from TweetRetriever import TweetRetriever
-import logging
-
-logging.basicConfig(level=logging.DEBUG,
-                    filename='TweetRetriever_Test.log',
-                    format='[%(asctime)s] %(levelname)s - %(module)s - %(funcName)s - %(message)s')
 
 tr = TweetRetriever(dev_env_name_30d='myDevEnv')
 

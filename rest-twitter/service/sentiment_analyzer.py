@@ -3,6 +3,14 @@ from config.mongo_config import DUMP_INTERVAL
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from Location_Service import *
 
+# Logging setup
+import logging
+import logstash
+from config.logstash import logstash_host, logstash_port
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
+
 
 class SentimentAnalyzer:
     def __init__(self):

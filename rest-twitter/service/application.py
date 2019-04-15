@@ -8,6 +8,14 @@ from sentiment_analyzer import SentimentAnalyzer
 from config.mongo_config import MONGO
 from Aggregator import Aggregator
 
+# Logging setup
+import logging
+import logstash
+from config.logstash import logstash_host, logstash_port
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
+
 path = os.path.join(os.path.curdir, 'data/worldcities.csv')
 # MongoDB setup
 client = MongoClient(MONGO["URI"])

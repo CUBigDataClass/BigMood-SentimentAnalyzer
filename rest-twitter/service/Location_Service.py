@@ -11,6 +11,14 @@ from models.Location_Country_Pair import LocationCountryPair
 from constants.Constants import *
 from config.mongo_config import MONGO
 
+# Logging setup
+import logging
+import logstash
+from config.logstash import logstash_host, logstash_port
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
+
 sys.path.append('../resources')
 
 
