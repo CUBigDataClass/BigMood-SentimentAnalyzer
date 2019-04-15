@@ -59,7 +59,7 @@ class LocationService:
         try:
             _all_item = self.lat_lon_cache.find()
             for item in _all_item:
-                log.debug('item is:', item)
+                log.debug('item is:' + str(item))
                 # location,country_code,lat,long
                 _loc = item['location_id'].split('__')
                 _cords = item['coords']
