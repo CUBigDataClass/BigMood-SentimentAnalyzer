@@ -146,5 +146,6 @@ def compute_schema_country(trend_info):
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app
+    log.info('Starting application!')
     application.debug = False
     application.run()

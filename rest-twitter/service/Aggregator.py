@@ -47,11 +47,11 @@ class Aggregator:
             self.city_state = city_state
             self.city_country = city_country
             self.state_country = state_country
-            print("city_state: " + str(len(self.city_state)))
-            print("city_country: " + str(len(self.city_country)))
-            print("state_country: " + str(len(self.state_country)))
+            log.info("city_state: " + str(len(self.city_state)))
+            log.info("city_country: " + str(len(self.city_country)))
+            log.info("state_country: " + str(len(self.state_country)))
         except FileNotFoundError:
-            print("Load file. File not found: " + file_location)
+            log.error("Load file. File not found: " + file_location)
 
     def get_state(self, city):
         _city = city.lower()
@@ -103,7 +103,7 @@ class Aggregator:
                     total_vol = sum(map(lambda x: int(x['tweetVolume']), trends_match))
                     avg_score = total_score / total_vol
                 else:
-                    print("No matching trends found for cities in :" + trend['twitterTrendInfo'])
+                    log.warning("No matching trends found for cities in :" + trend['twitterTrendInfo'])
                 trend['sentiment'] = avg_score
 
         return country_type_trends
@@ -122,7 +122,7 @@ class Aggregator:
                     total_vol = sum(map(lambda x: int(x['tweetVolume']), trends_match))
                     avg_score = total_score / total_vol
                 else:
-                    print("No matching trends found for cities in :" + trend['twitterTrendInfo'])
+                    log.warning("No matching trends found for cities in :" + trend['twitterTrendInfo'])
                 trend['sentiment'] = avg_score
 
         return country_type_trends
