@@ -3,7 +3,7 @@ import os
 import csv
 from threading import Thread
 
-from constants.Constants import *
+from sentiment_service.constants.Constants import *
 
 class Cache_Dump(Thread):
     """

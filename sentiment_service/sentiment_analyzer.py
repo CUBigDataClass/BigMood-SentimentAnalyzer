@@ -1,7 +1,7 @@
-from TweetRetriever import TweetRetriever
+from sentiment_service.TweetRetriever import TweetRetriever
 from config.location_service_config import CACHE
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from Location_Service import *
+from sentiment_service.Location_Service import *
 import time
 import os
 import json

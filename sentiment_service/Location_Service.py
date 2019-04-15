@@ -3,11 +3,11 @@ import csv
 
 from geopy.geocoders import Nominatim
 
-from helpers.Cache_Dump import Cache_Dump
+from sentiment_service.helpers.Cache_Dump import Cache_Dump
 
-from models.Location_Country_Pair import LocationCountryPair
+from sentiment_service.models.Location_Country_Pair import LocationCountryPair
 
-from constants.Constants import *
+from sentiment_service.constants.Constants import *
 
 sys.path.append('../resources')
 
