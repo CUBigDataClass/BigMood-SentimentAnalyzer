@@ -3,14 +3,24 @@ from config.mongo_config import DUMP_INTERVAL
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from Location_Service import *
 
+# Logging setup
+import logging
+import logstash
+from config.logstash import logstash_host, logstash_port
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
+
 
 class SentimentAnalyzer:
     def __init__(self):
+        log.info('Initializing SentimentAnalyzer')
         self.ls = LocationService(DUMP_INTERVAL['dump_interval'])
         self.tr = TweetRetriever()
 
     def sentiment_analyzer(self, sentence):
         # returns score for a sentence usign vader sentiment analyzer
+        log.info('returning score using vader sentiment for sentence: "{:s}"'.format(sentence))
         analyser = SentimentIntensityAnalyzer()
         score = analyser.polarity_scores(sentence)
         return score['compound']
@@ -20,12 +30,14 @@ class SentimentAnalyzer:
         calls Tweet retriver to retrive tweets for a hashtag
         computes avg score '''
 
+        log.info('computing sentiment for ({:s}, {:s}, {:s})'.format(country, city, hashtag))
         coords = self.ls.get_coordinates_for_city({'city': city, 'country': country})
         tweets = self.tr.get_tweets(hashtag, coords[LAT], coords[LON])
         compound_sum = 0
         num_tweets = len(tweets)
         if num_tweets == 0:
-            return "No tweets found"
+            log.warning('No tweets found! Returning 0 sentiment')
+            return 0
         for tweet in tweets:
             compound_score = self.sentiment_analyzer(tweet)
             compound_sum += compound_score

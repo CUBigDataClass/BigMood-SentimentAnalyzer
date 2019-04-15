@@ -8,6 +8,14 @@ from sentiment_analyzer import SentimentAnalyzer
 from config.mongo_config import MONGO
 from Aggregator import Aggregator
 
+# Logging setup
+import logging
+import logstash
+from config.logstash import logstash_host, logstash_port
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
+
 path = os.path.join(os.path.curdir, 'data/worldcities.csv')
 # MongoDB setup
 client = MongoClient(MONGO["URI"])
@@ -138,5 +146,6 @@ def compute_schema_country(trend_info):
 if __name__ == "__main__":
     # Setting debug to True enables debug output. This line should be
     # removed before deploying a production app
+    log.info('Starting application!')
     application.debug = False
     application.run()

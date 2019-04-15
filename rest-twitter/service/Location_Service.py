@@ -11,6 +11,14 @@ from models.Location_Country_Pair import LocationCountryPair
 from constants.Constants import *
 from config.mongo_config import MONGO
 
+# Logging setup
+import logging
+import logstash
+from config.logstash import logstash_host, logstash_port
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
+
 sys.path.append('../resources')
 
 
@@ -51,7 +59,7 @@ class LocationService:
         try:
             _all_item = self.lat_lon_cache.find()
             for item in _all_item:
-                print(item)
+                log.debug('item is:' + str(item))
                 # location,country_code,lat,long
                 _loc = item['location_id'].split('__')
                 _cords = item['coords']
@@ -59,7 +67,7 @@ class LocationService:
                 _val = {LAT: float(_cords[LAT]), LON: float(_cords[LON])}
                 self.local_cache[_key] = _val
         except FileNotFoundError:
-            print("Load file. File not found: " + file_location)
+            log.error("Load file. File not found: " + file_location)
 
     def get_coordinates_for_city(self, query):
         """
@@ -73,7 +81,7 @@ class LocationService:
 
         _key = LocationCountryPair(query[CITY].strip().lower(), query[COUNTRY].strip().lower())
         if _key in self.local_cache.keys():
-            print("Location service using Cached results")
+            log.info("Location service using Cached results")
             return self.local_cache.get(_key)
         else:
             try:
@@ -85,11 +93,11 @@ class LocationService:
                     self.cache_lat_lon(_key, lat_lon)
                     return lat_lon
                 else:
-                    print("Can not find lat lon for query:" + str(query))
+                    log.warning("Can not find lat lon for query:" + str(query))
                     return lat_lon
 
             except Exception as ex:
-                print(ex)
+                log.error(str(ex))
                 return {}
 
     def get_city_boundary(self, query):
@@ -107,11 +115,11 @@ class LocationService:
             if response is not None and response.raw is not None:
                 return response.raw[BOUNDING_BOX]
             else:
-                print("Can not find lat lon for query:" + str(query))
+                log.warning("Can not find lat lon for query:" + str(query))
                 return bounding_box
 
         except Exception as ex:
-            print(ex)
+            log.error(str(ex))
             return []
 
     def cache_lat_lon(self, key, lat_lon):

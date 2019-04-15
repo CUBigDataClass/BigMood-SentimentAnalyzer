@@ -1,9 +1,14 @@
 import os
 from birdy.twitter import AppClient, TwitterClientError
 from config.twitter_keys import consumer_key, consumer_secret
-import logging
 
+# Logging setup
+import logging
+import logstash
+from config.logstash import logstash_host, logstash_port
 log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
 
 class TweetRetriever:
 
@@ -18,7 +23,7 @@ class TweetRetriever:
         log.debug('Loading comsumer keys from configuration file')
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
-        # Ensure API keys are present in environment variables.
+        # Ensure API keys are present.
         if 0 in [len(self.consumer_key), len(self.consumer_secret)]:
             raise EnvironmentError('At least one Twitter API key is not defined in config.twitter_keys')
         else:
