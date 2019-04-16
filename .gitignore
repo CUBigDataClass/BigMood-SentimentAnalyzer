@@ -1,8 +1,7 @@
-rest-twitter/service/config/mongo_config.py
-rest-twitter/service/config/twitter_keys.py
+config/*
 *.idea
-rest-twitter/.vscode/
-sentiment-service/.elasticbeanstalk/
+.vscode/
+
 *.pyc
 __pycache__
 *.log
