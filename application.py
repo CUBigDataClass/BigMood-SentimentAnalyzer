@@ -20,7 +20,7 @@ path = os.path.join(os.path.curdir, 'data/worldcities.csv')
 # MongoDB setup
 client = MongoClient(MONGO["URI"])
 # Use sentiment database
-db = client.tweets_db
+db = client.sentiments_db
 
 # Use sentiment collection for storing purposes
 sentiments = db.sentiment_collection
