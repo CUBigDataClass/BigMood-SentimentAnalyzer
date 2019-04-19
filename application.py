@@ -95,14 +95,20 @@ def post_trend_sentiment():
         analyzed_tweets = []
 
         # filter trends with country type and city type.
-        country_type_trends = list(filter(lambda twt: twt['locationType'] == 'Country', data['trends']))
-        city_type__trends = list(filter(lambda twt: twt['locationType'] == 'City', data['trends']))
+        trends_with_locationType = list(filter(lambda twt: 'locationType' in twt, data['trends']))
+        country_type_trends = list(filter(lambda twt: twt['locationType'] == 'Country', trends_with_locationType))
+        city_type__trends = list(filter(lambda twt: twt['locationType'] == 'City', trends_with_locationType))
 
         # process them independently.
         error = None
         for trend_info in city_type__trends:
-            schema = compute_schema(trend_info)
-            analyzed_tweets.append(schema)
+            schema = None
+            try:
+                schema = compute_schema(trend_info)
+            except Exception as e:
+                log.error("[POST]/trendsentiment: failed to get the sentiment for trend info:" + str(trend_info) + "Error:" + str(e))
+            if schema is not None:
+                analyzed_tweets.append(schema)
         try:
             country_trends = aggregator.aggr_city_country(country_type_trends, city_type__trends)
 
