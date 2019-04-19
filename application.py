@@ -24,7 +24,7 @@ client = MongoClient(MONGO["URI"])
 db = client.sentiments_db
 
 # Use sentiment collection for storing purposes
-sentiments = db.sentiment_collection
+sentiments = db.sentiments_collection
 
 sentiment_analyzer = SentimentAnalyzer()
 
