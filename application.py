@@ -95,8 +95,9 @@ def post_trend_sentiment():
         analyzed_tweets = []
 
         # filter trends with country type and city type.
-        country_type_trends = list(filter(lambda twt: twt['locationType'] == 'Country', data['trends']))
-        city_type__trends = list(filter(lambda twt: twt['locationType'] == 'City', data['trends']))
+        trends_with_locationType = list(filter(lambda twt: 'locationType' in twt, data['trends']))
+        country_type_trends = list(filter(lambda twt: twt['locationType'] == 'Country', trends_with_locationType))
+        city_type__trends = list(filter(lambda twt: twt['locationType'] == 'City', trends_with_locationType))
 
         # process them independently.
         error = None
