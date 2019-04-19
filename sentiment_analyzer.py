@@ -20,7 +20,6 @@ class SentimentAnalyzer:
 
     def sentiment_analyzer(self, sentence):
         # returns score for a sentence usign vader sentiment analyzer
-        log.info('returning score using vader sentiment for sentence: "{:s}"'.format(sentence))
         analyser = SentimentIntensityAnalyzer()
         score = analyser.polarity_scores(sentence)
         return score['compound']
