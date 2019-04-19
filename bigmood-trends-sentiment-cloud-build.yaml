@@ -1,5 +1,5 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-t', 'gcr.io/bigmood-237300/bigmood-trends-sentiment:v1', '.' ]
+  args: [ 'build', '-t', 'gcr.io/supple-bank-232805/bigmood-trends-sentiment:v6', '.' ]
 images:
-- 'gcr.io/bigmood-237300/bigmood-trends-sentiment:v1'
+- 'gcr.io/supple-bank-232805/bigmood-trends-sentiment'

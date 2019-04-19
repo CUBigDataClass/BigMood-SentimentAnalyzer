@@ -1,13 +1,13 @@
 import os
 from birdy.twitter import AppClient, TwitterClientError
-from config.twitter_keys import consumer_key, consumer_secret
+from config.conf import consumer_key, consumer_secret
 
 # Logging setup
 import logging
 import logstash
-from config.logstash import logstash_host, logstash_port
+from config.conf import logstash_host, logstash_port
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
 
 class TweetRetriever:
