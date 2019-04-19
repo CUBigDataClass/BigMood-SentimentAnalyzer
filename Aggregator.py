@@ -7,7 +7,7 @@ from queue import PriorityQueue
 # Logging setup
 import logging
 import logstash
-from config.logstash import logstash_host, logstash_port
+from config.conf import logstash_host, logstash_port
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
@@ -109,6 +109,7 @@ class Aggregator:
         return country_type_trends
 
     def aggr_city_country(self, country_type_trends, city_trends):
+        log.info("aggr_city_country was called.")
 
         all_city_trends = list(
             itertools.chain(*list(map(lambda city_trend: city_trend['twitterTrendInfo'], city_trends))))

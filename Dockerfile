@@ -10,7 +10,7 @@ RUN pip install -r /app/requirements.txt
 COPY . /app
 
 
-ENV PORT 5000
-EXPOSE 5000/tcp
+ENV PORT 33445
+EXPOSE 33445/tcp
 
 CMD ["python", "application.py" ]

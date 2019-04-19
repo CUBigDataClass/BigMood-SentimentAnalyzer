@@ -3,6 +3,14 @@ from threading import Thread
 
 from constants.Constants import *
 
+# Logging setup
+import logging
+import logstash
+from config.conf import logstash_host, logstash_port
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
+log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
+
 
 class Cache_Dump(Thread):
     """
@@ -34,21 +42,21 @@ class Cache_Dump(Thread):
         """
 
         while True:
-            print(self.getName() + " is running!")
+            log.info(self.getName() + " is running!")
             time.sleep(self.cache_dump_interval)
-            print(self.getName() + " woke up and ready to dump cache in database!")
+            log.info(self.getName() + " woke up and ready to dump cache in database!")
             try:
                 if(len(self.things_to_dump)>0):
-                    print("Calling bulk insert on mongodb. Total document to insert: ", len(self.things_to_dump))
+                    log.info("Calling bulk insert on mongodb. Total document to insert: ", len(self.things_to_dump))
                     self.db_collection.insert_many(self.convert_to_json(self.things_to_dump), ordered=False)
                     self.things_to_dump.clear()
                 else:
-                    print("Nothing to insert in the database.")
-                print("Cache dump successful!")
+                    log.info("Nothing to insert in the database.")
+                log.info("Cache dump successful!")
             except Exception as ex:
-                print("failed to save cache" + str(ex))
+                log.info("failed to save cache" + str(ex))
                 break
-        print(self.getName() + " is exiting due to an error, Bye!")
+        log.info(self.getName() + " is exiting due to an error, Bye!")
 
 
     def convert_to_json(self, cache):

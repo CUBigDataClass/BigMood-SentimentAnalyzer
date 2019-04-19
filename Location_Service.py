@@ -9,14 +9,14 @@ from helpers.Cache_Dump import Cache_Dump
 from models.Location_Country_Pair import LocationCountryPair
 
 from constants.Constants import *
-from config.mongo_config import MONGO
+from config.conf import MONGO
 
 # Logging setup
 import logging
 import logstash
-from config.logstash import logstash_host, logstash_port
+from config.conf import logstash_host, logstash_port
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
 
 sys.path.append('../resources')
@@ -50,6 +50,7 @@ class LocationService:
         self.load_from_database()
 
         self.cache_dump_interval = cache_dump_interval
+        log.info('LocationService is initialised')
         self.dump_thread = Cache_Dump(self.lat_lon_cache, self.things_to_dump, self.cache_dump_interval)
         self.dump_thread.setDaemon(True)
         self.dump_thread.setName("Coordinates cache dumping thread")
