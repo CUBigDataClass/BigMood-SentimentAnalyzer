@@ -101,8 +101,13 @@ def post_trend_sentiment():
         # process them independently.
         error = None
         for trend_info in city_type__trends:
-            schema = compute_schema(trend_info)
-            analyzed_tweets.append(schema)
+            schema = None
+            try:
+                schema = compute_schema(trend_info)
+            except Exception as e:
+                log.error("[POST]/trendsentiment: failed to get the sentiment for trend info:" + str(trend_info) + "Error:" + str(e))
+            if schema is not None:
+                analyzed_tweets.append(schema)
         try:
             country_trends = aggregator.aggr_city_country(country_type_trends, city_type__trends)
 
