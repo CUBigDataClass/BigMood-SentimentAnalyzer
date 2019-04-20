@@ -1,12 +1,15 @@
 #!bin/bash
-
+echo "running deploy script"
 set -e
+ls -l
 
 docker build -t gcr.io/${PROJECT_NAME}/${CLUSTER_NAME}:$TRAVIS_COMMIT .
 docker tag gcr.io/${PROJECT_NAME}/${CLUSTER_NAME}:$TRAVIS_COMMIT gcr.io/${PROJECT_NAME}/${CLUSTER_NAME}:latest
 
-echo GCLOUD_SERVICE_KEY | base64 --decode -i > ${HOME}/gcloud-service-key.json
-gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+echo "docker build done"
+gcloud auth activate-service-account --key-file ${HOME}/My-project-key.json
+
+echo "Login success in gcloud."
 
 gcloud --quiet config set project $PROJECT_NAME
 gcloud --quiet config set container/cluster $CLUSTER_NAME
@@ -20,9 +23,8 @@ yes | gcloud beta container images add-tag gcr.io/${PROJECT_NAME}/${CLUSTER_NAME
 kubectl config view
 kubectl config current-context
 
-kubectl apply -f pod.yml
 
 kubectl set image deployment/${CLUSTER_NAME} ${CLUSTER_NAME}=gcr.io/${PROJECT_NAME}/${CLUSTER_NAME}:$TRAVIS_COMMIT
 
-echo $DEMO_GREETING
+echo "script Complete"
 
