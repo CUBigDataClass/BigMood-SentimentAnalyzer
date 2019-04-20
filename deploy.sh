@@ -7,7 +7,7 @@ docker build -t gcr.io/${PROJECT_NAME}/${CLUSTER_NAME}:$TRAVIS_COMMIT .
 docker tag gcr.io/${PROJECT_NAME}/${CLUSTER_NAME}:$TRAVIS_COMMIT gcr.io/${PROJECT_NAME}/${CLUSTER_NAME}:latest
 
 echo "docker build done"
-gcloud auth activate-service-account --key-file ${HOME}/My-project-key.json
+gcloud auth activate-service-account --key-file ./My-project-key.json
 
 echo "Login success in gcloud."
 
