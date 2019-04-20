@@ -43,7 +43,7 @@ def get_timestamp():
 # Decorator for index page of endpoint
 @application.route('/')
 def home():
-    return '''<h1>Hello. Go to /trendsentiment</h1>'''
+    return '''<h1>Hello there. Go to /trendsentiment</h1>'''
 
 
 # Main function for handling GET request

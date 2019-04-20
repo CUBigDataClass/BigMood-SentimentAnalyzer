@@ -24,7 +24,7 @@ kubectl config view
 kubectl config current-context
 
 
-kubectl set image deployment/${CLUSTER_NAME} ${CLUSTER_NAME}=gcr.io/${PROJECT_NAME}/${CLUSTER_NAME}:$TRAVIS_COMMIT
+kubectl set image deployment.apps/${CLUSTER_NAME} ${CLUSTER_NAME}=gcr.io/${PROJECT_NAME}/${CLUSTER_NAME}:$TRAVIS_COMMIT
 
 echo "script Complete"
 
