@@ -9,6 +9,8 @@ docker tag gcr.io/${PROJECT_NAME}/${CLUSTER_NAME}:$TRAVIS_COMMIT gcr.io/${PROJEC
 echo "docker build done"
 gcloud auth activate-service-account --key-file ${HOME}/My-project-key.json
 
+echo "Login success in gcloud."
+
 gcloud --quiet config set project $PROJECT_NAME
 gcloud --quiet config set container/cluster $CLUSTER_NAME
 gcloud --quiet config set compute/zone ${CLOUDSDK_COMPUTE_ZONE}

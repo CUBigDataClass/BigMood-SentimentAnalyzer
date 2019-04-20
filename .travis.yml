@@ -11,7 +11,6 @@ env:
   - PROJECT_NAME=supple-bank-232805
   - CLUSTER_NAME=bigmood-trends-sentiment-testing
   - CLOUDSDK_COMPUTE_ZONE=us-central1-c
-  - secure: UH2C/DTgSnEnJV6NaiS4DH458KpM4wjQadbjQA5Tufmc6Zg0uNh2IjkLLRIkRBhYY51GnsuAu5oxrwnh/M4DPQS19J1BBWYRDYjkOXSBumbEns2mxyExq6FVxLT7j6z1k3QsNk7SfzWEeVFGfttxuHNOB03TfZKf8K1arGmyhL3NT8SawKCzwVyGonl51rGBY0mfa08kMSLxAbpWxV+AdrHoPUl6Mb6U+kWWl07y9MHxxMlQEwCGfrDz/Kmy8mLuadhdKpNh6JtomN4iuNJNS8STvy81XI8icDSTatQAdIozarsG6jinYqy7qtmD465DaVo8ffqE4ZbEu3SlOriBq22GpODYymIJI7CxdxYl+9xRIjm36zlhn3i7M2nAFyPCrTntn0s4lg2y2uK+GCSeCvygqgDQ/p6ubF6yQJrJKChmuvrS1Dm21l7nu1TWV13q7lQoJDZAXpAi51Aww4U9Ac5itPvepFw1izQSnVMx/joBjkihVofF0t/ZMRU/C7QkkNjXEf/z/jpClD8K4w1APb3DX1xuFDH4qjW4+AXSJpH4j3tboqp+Ya8Na/r1tBcC4uVPecLUgCFGQjrk/ejVA+ZYoI20Ja9UKfSkKjkH0D2UBN6MoM9ShTWpvxMONpOsmGzy+kqDv0esKg/vrfUihvyFAkekUQqDiqdbDkK0xcw=
 before_install:
 - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export
   CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
@@ -22,6 +21,7 @@ before_install:
 - gcloud --quiet components update kubectl
 - echo $super_secret_password | gpg --passphrase-fd 0 My-project-key.json.gpg
 - echo $super_secret_password | gpg --passphrase-fd 0 conf.py.gpg
+- mv conf.py ./config/
 
 install:
 - pip install -r ./requirements.txt
@@ -29,7 +29,7 @@ install:
 script:
 - echo "success installing."
 - pwd
-- ls
+- ls -l
 
 before_deploy:
 - gcloud --quiet components update kubectl
