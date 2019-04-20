@@ -1,0 +1,14 @@
+kind: Pod
+metadata:
+  name: env-pod
+  labels:
+    purpose: python-app-config
+spec:
+  containers:
+  - name: $PROJECT_NAME
+    image: gcr.io/$PROJECT_NAME/${CLUSTER_NAME}:$TRAVIS_COMMIT
+    env:
+    - name: DEMO_GREETING
+      value: "Hello from the environment"
+    - name: DEMO_FAREWELL
+      value: " Such a sweet sorrow"

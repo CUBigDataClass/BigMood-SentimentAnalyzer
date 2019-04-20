@@ -2,9 +2,43 @@ language: python
 python:
   - "3.5"
   - "3.6"
+
+cache:
+  directories:
+    # We cache the SDK so we don't have to download it again on subsequent builds.
+    - $HOME/google-cloud-sdk
 # command to install dependencies
+env:
+  global:
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+    - GOOGLE_APPLICATION_CREDENTIALS=gcloud-service-key.json
+    - PROJECT_NAME=supple-bank-232805
+    - CLUSTER_NAME=bigmood-trends-sentiment-testing
+    - CLOUDSDK_COMPUTE_ZONE=us-central1-c
+
+before_install:
+  - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
+  - source /home/travis/google-cloud-sdk/path.bash.inc
+  - gcloud --quite version
+  - gcloud --quite components update
+  - gcloud --quite components update beta
+
 install:
   - pip install -r ./requirements.txt
+  - docker
 # command to run tests
+
 script:
-  - echo "success"
+  - echo "success installing."
+
+before_deploy:
+  - gcloud --quiet components update kubectl
+
+
+deploy:
+  - provider: script
+    script: ./deploy.sh
+    skip_cleanup: true
+    on:
+      branch: master
+
