@@ -125,7 +125,7 @@ def post_trend_sentiment():
             sentiments.insert_many(analyzed_tweets)
             if error is None:
                 log.info(
-                    "[POST]/trendsentiment: Successfully inserted data in mongo db, total :" + len(analyzed_tweets))
+                    "[POST]/trendsentiment: Successfully inserted data in mongo db, total :" + str(len(analyzed_tweets)))
                 return dumps({'message': 'Succesfully created'})
             else:
                 log.info("[POST]/trendsentiment: error in calling mongodb")

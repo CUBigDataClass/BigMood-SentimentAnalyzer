@@ -47,7 +47,7 @@ class Cache_Dump(Thread):
             log.info(self.getName() + " woke up and ready to dump cache in database!")
             try:
                 if(len(self.things_to_dump)>0):
-                    log.info("Calling bulk insert on mongodb. Total document to insert: " + len(self.things_to_dump))
+                    log.info("Calling bulk insert on mongodb. Total document to insert: " + str(len(self.things_to_dump)))
                     self.db_collection.insert_many(self.convert_to_json(self.things_to_dump), ordered=False)
                     self.things_to_dump.clear()
                 else:
