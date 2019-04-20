@@ -8,7 +8,7 @@ env:
   global:
   - CLOUDSDK_CORE_DISABLE_PROMPTS=1
   - PROJECT_NAME=supple-bank-232805
-  - CLUSTER_NAME=bigmood-trends-sentiment-testing
+  - CLUSTER_NAME=big-data-trends-sentiment-cluster
   - CLOUDSDK_COMPUTE_ZONE=us-central1-c
 before_install:
 - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export
