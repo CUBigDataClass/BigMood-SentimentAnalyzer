@@ -19,9 +19,9 @@ env:
 before_install:
   - if [ ! -d "$HOME/google-cloud-sdk/bin" ]; then rm -rf $HOME/google-cloud-sdk; export CLOUDSDK_CORE_DISABLE_PROMPTS=1; curl https://sdk.cloud.google.com | bash; fi
   - source /home/travis/google-cloud-sdk/path.bash.inc
-  - gcloud --quite version
-  - gcloud --quite components update
-  - gcloud --quite components update beta
+  - gcloud --quiet version
+  - gcloud --quiet components update
+  - gcloud --quiet components update beta
 
 install:
   - pip install -r ./requirements.txt
