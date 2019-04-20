@@ -32,7 +32,7 @@ script:
   - echo "success installing."
 
 before_deploy:
-  - gcloud --quite components update kubectl
+  - gcloud --quiet components update kubectl
 
 
 deploy:
