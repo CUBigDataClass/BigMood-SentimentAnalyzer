@@ -4,7 +4,7 @@ import os
 
 sys.path.append(os.getcwd())
 
-from config.mongo_config import DUMP_INTERVAL
+from config.conf import DUMP_INTERVAL
 from Location_Service import *
 
 ls = LocationService(DUMP_INTERVAL['dump_interval'])
