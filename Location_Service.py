@@ -69,7 +69,7 @@ class LocationService:
                 self.local_cache[_key] = _val
         except FileNotFoundError:
             log.error("Load file. File not found: " + file_location)
-
+        log.info("Total number of entries in cache: " +str(len(self.local_cache)))
     def get_coordinates_for_city(self, query):
         """
         Method to get the geo coordinated for the query.
@@ -82,7 +82,7 @@ class LocationService:
 
         _key = LocationCountryPair(query[CITY].strip().lower(), query[COUNTRY].strip().lower())
         if _key in self.local_cache.keys():
-            log.info("Location service using Cached results")
+            log.debug("Location service using Cached results")
             return self.local_cache.get(_key)
         else:
             try:
