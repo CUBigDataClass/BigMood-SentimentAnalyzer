@@ -7,6 +7,9 @@ import os
 from sentiment_analyzer import SentimentAnalyzer
 from config.conf import MONGO
 from Aggregator import Aggregator
+from time import sleep
+from json import dumps
+from kafka import KafkaProducer
 
 # Logging setup
 import logging
@@ -21,7 +24,7 @@ path = os.path.join(os.path.curdir, 'data/worldcities.csv')
 # MongoDB setup
 client = MongoClient(MONGO["URI"])
 # Use sentiment database
-db = client.sentiments_db
+db = client.sentiments_db_test
 
 # Use sentiment collection for storing purposes
 sentiments = db.sentiments_collection
@@ -29,6 +32,12 @@ sentiments = db.sentiments_collection
 sentiment_analyzer = SentimentAnalyzer()
 
 aggregator = Aggregator(path)
+
+#connect to kafka producer
+producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
+                         value_serializer=lambda x: 
+                         dumps(x).encode('utf-8'))
+kafka_topic = 'trendSentiment'
 
 # Elastic Beanstalk application setup
 # EB looks for an 'application' callable by default
@@ -121,6 +130,9 @@ def post_trend_sentiment():
             log.error('[POST]/trendsentiment: Error in aggregaing the the tweets countrywise: ' + str(e))
 
         try:
+            #publish the schema to kafka topic
+            print("Send message to kafka topic")
+            producer.send(kafka_topic, value=analyzed_tweets)
             # store all tweets that we have analyzed for sentiment in mongo
             sentiments.insert_many(analyzed_tweets)
             if error is None:
