@@ -14,6 +14,7 @@ from kafka import KafkaProducer
 import logging
 import logstash
 from config.conf import logstash_host, logstash_port, app_port
+from config.conf import kafka_host
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -33,7 +34,7 @@ sentiment_analyzer = SentimentAnalyzer()
 aggregator = Aggregator(path)
 
 #connect to kafka producer
-producer = KafkaProducer(bootstrap_servers=['35.222.250.101:9092'],
+producer = KafkaProducer(bootstrap_servers=[kafka_host],
                          value_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
 kafka_topic = 'trendSentiment'
