@@ -134,7 +134,6 @@ def post_trend_sentiment():
             producer.send(kafka_topic, value=analyzed_tweets)
         except Exception as e:
             log.error('[POST]/trendsentiment: Failed to publish data to kafka topic' + str(e))
-            return dumps({'error': str(e)})
 
         try:
             # store all tweets that we have analyzed for sentiment in mongo
