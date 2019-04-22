@@ -24,7 +24,7 @@ path = os.path.join(os.path.curdir, 'data/worldcities.csv')
 # MongoDB setup
 client = MongoClient(MONGO["URI"])
 # Use sentiment database
-db = client.sentiments_db_test
+db = client.sentiments_db
 
 # Use sentiment collection for storing purposes
 sentiments = db.sentiments_collection
@@ -34,7 +34,7 @@ sentiment_analyzer = SentimentAnalyzer()
 aggregator = Aggregator(path)
 
 #connect to kafka producer
-producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
+producer = KafkaProducer(bootstrap_servers=['35.222.250.101:9092'],
                          value_serializer=lambda x: 
                          dumps(x).encode('utf-8'))
 kafka_topic = 'trendSentiment'
@@ -123,7 +123,9 @@ def post_trend_sentiment():
 
             for trend_info in country_trends:
                 schema = compute_schema_country(trend_info)
-                analyzed_tweets.append(schema)
+                aproducer = KafkaProducer(bootstrap_servers=['35.222.250.101:9092'],
+                         value_serializer=lambda x: 
+                         dumps(x).encode('utf-8'))nalyzed_tweets.append(schema)
 
         except Exception as e:
             error = e
@@ -131,8 +133,11 @@ def post_trend_sentiment():
 
         try:
             #publish the schema to kafka topic
-            print("Send message to kafka topic")
             producer.send(kafka_topic, value=analyzed_tweets)
+            if error is None:
+                log.info("[POST]/trendsentiment: Successfully published data to kafka topic")
+            else:
+                log.info("[POST]/trendsentiment: Error in publishing data")
             # store all tweets that we have analyzed for sentiment in mongo
             sentiments.insert_many(analyzed_tweets)
             if error is None:
