@@ -127,7 +127,7 @@ def post_trend_sentiment():
 
         except Exception as e:
             error = e
-            log.error('[POST]/trendsentiment: Error in aggregaing the the tweets countrywise: ' + str(e))
+            log.error('[POST]/trendsentiment: Error in aggregating the the tweets countrywise: ' + str(e))
 
         try:
             #publish the schema to kafka topic
