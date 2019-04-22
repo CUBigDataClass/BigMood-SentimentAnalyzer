@@ -7,7 +7,6 @@ import os
 from sentiment_analyzer import SentimentAnalyzer
 from config.conf import MONGO
 from Aggregator import Aggregator
-from time import sleep
 from json import dumps
 from kafka import KafkaProducer
 
@@ -135,7 +134,6 @@ def post_trend_sentiment():
         except Exception as e:
             log.error('[POST]/trendsentiment: Failed to publish data to kafka topic' + str(e))
             return dumps({'error': str(e)})
-
 
         try:
             # store all tweets that we have analyzed for sentiment in mongo
