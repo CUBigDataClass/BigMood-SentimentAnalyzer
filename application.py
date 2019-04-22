@@ -123,13 +123,20 @@ def post_trend_sentiment():
 
             for trend_info in country_trends:
                 schema = compute_schema_country(trend_info)
-                aproducer = KafkaProducer(bootstrap_servers=['35.222.250.101:9092'],
-                         value_serializer=lambda x: 
-                         dumps(x).encode('utf-8'))nalyzed_tweets.append(schema)
+                analyzed_tweets.append(schema)
 
         except Exception as e:
             error = e
             log.error('[POST]/trendsentiment: Error in aggregaing the the tweets countrywise: ' + str(e))
+
+        try:
+            #publish the schema to kafka topic
+            producer.send(kafka_topic, value=analyzed_tweets)
+            log.info("[POST]/trendsentiment: Successfully published to kafka topic")
+        except Exception as e:
+            log.error('[POST]/trendsentiment: Failed to publish data to kafka topic' + str(e))
+            return dumps({'error': str(e)})
+
 
         try:
             #publish the schema to kafka topic
