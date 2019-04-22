@@ -17,7 +17,8 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
 
-path = os.path.join(os.path.curdir, 'data/worldcities.csv')
+paths = [os.path.join(os.path.curdir, 'data/worldcities.csv'), os.path.join(os.path.curdir, 'data/bounding_box.json')]
+
 # MongoDB setup
 client = MongoClient(MONGO["URI"])
 # Use sentiment database
@@ -28,7 +29,7 @@ sentiments = db.sentiments_collection
 
 sentiment_analyzer = SentimentAnalyzer()
 
-aggregator = Aggregator(path)
+aggregator = Aggregator(paths[0], paths[1])
 
 # Elastic Beanstalk application setup
 # EB looks for an 'application' callable by default
@@ -91,7 +92,7 @@ def post_trend_sentiment():
     if request.method == 'POST':
         log.info('[POST]/trendsentiment request received')
         data = request.get_json()
-
+        # data = data['data']
         analyzed_tweets = []
 
         # filter trends with country type and city type.
@@ -143,7 +144,7 @@ def compute_schema(trend_info):
         'city': trend_info.get('city', None),
         'trends': [{
             'name': tweet['name'],
-            'sentiment': sentiment_analyzer.compute_sentiment(trend_info['country'], trend_info['city'], tweet['name']),
+            'sentiment': sentiment_analyzer.compute_sentiment(trend_info['countryCode'], trend_info['city'], tweet['name']),
             'rank': tweet['rank'],
             'tweetVolume': tweet['tweetVolume']
         } for tweet in trend_info['twitterTrendInfo']],
