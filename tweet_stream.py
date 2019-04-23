@@ -5,8 +5,6 @@ import json
 from tweepy import Stream
 from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
-from config.conf import streamConsumerKey, streamConsumerSecret, streamAccessTokenKey, streamAccessTokenSecret
-
 
 # Logging setup
 import logging
@@ -43,7 +41,7 @@ class listener(StreamListener):
             return False
 
     def on_error(self, status):
-        print(status)
+        log.error(status)
 
 
 class TweetStream:
@@ -51,7 +49,7 @@ class TweetStream:
             your Twitter app should be present in environment variables.
             num_tweets = number of tweets you want to get back from calling statuses/filter Twitter endpoint'''
 
-    def __init__(self, num_tweets=this.num_tweets):
+    def __init__(self, streamConsumerKey, streamConsumerSecret, streamAccessTokenKey, streamAccessTokenSecret, num_tweets=this.num_tweets):
         log.info(f'Initializing {__name__} with "{num_tweets}" as number of tweets to search')
         self.num_tweets = num_tweets
         self.tweets = this.tweets
@@ -68,9 +66,7 @@ class TweetStream:
             log.info('Twitter API key and secret key loaded')
         log.info('Initializing Twitter client')
         self.client = self._initialize_client()
-        if self.client is not None:
-            return
-        else:
+        if self.client is None:
             raise Exception('Failed to initialize TweetStream')
 
 
