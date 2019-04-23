@@ -17,7 +17,8 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
 
-path = os.path.join(os.path.curdir, 'data/worldcities.csv')
+paths = [os.path.join(os.path.curdir, 'data/worldcities.csv'), os.path.join(os.path.curdir, 'data/bounding_box.json')]
+
 # MongoDB setup
 client = MongoClient(MONGO["URI"])
 # Use sentiment database
@@ -28,7 +29,7 @@ sentiments = db.sentiments_collection
 
 sentiment_analyzer = SentimentAnalyzer()
 
-aggregator = Aggregator(path)
+aggregator = Aggregator(paths[0], paths[1])
 
 # Elastic Beanstalk application setup
 # EB looks for an 'application' callable by default
@@ -91,7 +92,6 @@ def post_trend_sentiment():
     if request.method == 'POST':
         log.info('[POST]/trendsentiment request received')
         data = request.get_json()
-
         analyzed_tweets = []
 
         # filter trends with country type and city type.
@@ -105,15 +105,18 @@ def post_trend_sentiment():
             schema = None
             try:
                 schema = compute_schema(trend_info)
+                
             except Exception as e:
                 log.error("[POST]/trendsentiment: failed to get the sentiment for trend info:" + str(trend_info) + "Error:" + str(e))
             if schema is not None:
+                
                 analyzed_tweets.append(schema)
         try:
             country_trends = aggregator.aggr_city_country(country_type_trends, city_type__trends)
-
+            
             for trend_info in country_trends:
                 schema = compute_schema_country(trend_info)
+                
                 analyzed_tweets.append(schema)
 
         except Exception as e:
@@ -122,6 +125,7 @@ def post_trend_sentiment():
 
         try:
             # store all tweets that we have analyzed for sentiment in mongo
+            print(f"Inserting analyzed tweets {analyzed_tweets}")
             sentiments.insert_many(analyzed_tweets)
             if error is None:
                 log.info(
@@ -143,7 +147,7 @@ def compute_schema(trend_info):
         'city': trend_info.get('city', None),
         'trends': [{
             'name': tweet['name'],
-            'sentiment': sentiment_analyzer.compute_sentiment(trend_info['country'], trend_info['city'], tweet['name']),
+            'sentiment': sentiment_analyzer.compute_sentiment(country_code=trend_info['countryCode'], hashtag=tweet['name'], city=trend_info['city']),
             'rank': tweet['rank'],
             'tweetVolume': tweet['tweetVolume']
         } for tweet in trend_info['twitterTrendInfo']],
@@ -160,7 +164,7 @@ def compute_schema_country(trend_info):
         'city': trend_info.get('city', None),
         'trends': [{
             'name': tweet['name'],
-            'sentiment': tweet['sentiment'],
+            'sentiment': sentiment_analyzer.compute_sentiment(country_code=trend_info['countryCode'], hashtag=tweet['name']), # tweet['sentiment'],
             'rank': tweet['rank'],
             'tweetVolume': tweet['tweetVolume']
         } for tweet in trend_info['twitterTrendInfo']],

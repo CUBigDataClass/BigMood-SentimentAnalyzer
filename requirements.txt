@@ -1,5 +1,6 @@
 geopy
 birdy
+tweepy
 python-logstash
 vaderSentiment
 bson==0.5.8

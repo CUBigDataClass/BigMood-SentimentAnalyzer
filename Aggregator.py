@@ -1,6 +1,6 @@
 import csv
 import itertools
-
+import json
 from constants.Constants import *
 from queue import PriorityQueue
 
@@ -14,9 +14,24 @@ log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version
 
 class Aggregator:
 
-    def __init__(self, csv_location):
+    def __init__(self, csv_location, bb_location):
         self.csv_location = csv_location
+        self.bb_location = bb_location
         self.load_file(csv_location)
+        self.load_bb(bb_location)
+
+    def load_bb(self, file_location):
+        try:
+            cc_bb = dict()
+            with open(file_location) as json_file:
+                data = json.load(json_file)
+                for cc in data:
+                    cc_bb[cc] = data[cc][1]
+            self.bb = cc_bb
+            log.info("bounding boxes: " + str(len(self.bb))) 
+        except FileNotFoundError:
+            log.error("Load file. File not found: " + file_location)
+
 
     def load_file(self, file_location):
         try:
@@ -64,6 +79,12 @@ class Aggregator:
         if _city in self.city_country.keys():
             return self.city_country[_city]
         return None
+    
+    def get_country_bb(self, country_code):
+        _cc = country_code.upper()
+        if _cc in self.bb.keys():
+            return self.bb[_cc]
+
 
     def get_state_country(self, state):
         _state = state.lower()

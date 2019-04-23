@@ -3,7 +3,12 @@ from Aggregator import Aggregator
 import json
 
 path = os.path.join(os.path.curdir, 'data/worldcities.csv')
-aggregator = Aggregator(path)
+bb = os.path.join(os.path.curdir, 'data/bounding_box.json')
+
+aggregator = Aggregator(path, bb)
+
+# Test for bounding box
+assert [25.26, -22.27, 32.85, -15.51] == aggregator.get_country_bb('ZW'), 'Failed'
 assert 'united states' == aggregator.get_country('New York'), 'Failed'
 assert 'united states' == aggregator.get_country('New york'), 'Failed'
 assert None == aggregator.get_country(' york'), 'Failed'
