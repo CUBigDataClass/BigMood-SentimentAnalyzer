@@ -3,6 +3,7 @@ birdy
 tweepy
 python-logstash
 vaderSentiment
+kafka-python
 bson==0.5.8
 Click==7.0
 DateTime==4.3

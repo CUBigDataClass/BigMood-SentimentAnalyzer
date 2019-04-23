@@ -19,8 +19,7 @@ before_install:
 - gcloud --quiet components update beta
 - gcloud --quiet components update kubectl
 - echo $super_secret_password | gpg --passphrase-fd 0 My-project-key.json.gpg
-- echo $super_secret_password | gpg --passphrase-fd 0 conf.py.gpg
-- mv conf.py ./config/
+- echo $super_secret_password | gpg --passphrase-fd 0 ./config/conf.py.gpg
 
 install:
 - pip install -r ./requirements.txt

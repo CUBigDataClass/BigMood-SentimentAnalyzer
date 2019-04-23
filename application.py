@@ -7,11 +7,14 @@ import os
 from sentiment_analyzer import SentimentAnalyzer
 from config.conf import MONGO
 from Aggregator import Aggregator
+from json import dumps
+from kafka import KafkaProducer
 
 # Logging setup
 import logging
 import logstash
 from config.conf import logstash_host, logstash_port, app_port
+from config.conf import kafka_host
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -30,6 +33,12 @@ sentiments = db.sentiments_collection
 sentiment_analyzer = SentimentAnalyzer()
 
 aggregator = Aggregator(paths[0], paths[1])
+
+#connect to kafka producer
+producer = KafkaProducer(bootstrap_servers=[kafka_host],
+                         value_serializer=lambda x: 
+                         dumps(x).encode('utf-8'))
+kafka_topic = 'trendSentiment'
 
 # Elastic Beanstalk application setup
 # EB looks for an 'application' callable by default
@@ -92,6 +101,7 @@ def post_trend_sentiment():
     if request.method == 'POST':
         log.info('[POST]/trendsentiment request received')
         data = request.get_json()
+
         analyzed_tweets = []
 
         # filter trends with country type and city type.
@@ -121,7 +131,13 @@ def post_trend_sentiment():
 
         except Exception as e:
             error = e
-            log.error('[POST]/trendsentiment: Error in aggregaing the the tweets countrywise: ' + str(e))
+            log.error('[POST]/trendsentiment: Error in aggregating the the tweets countrywise: ' + str(e))
+
+        try:
+            #publish the schema to kafka topic
+            producer.send(kafka_topic, value=analyzed_tweets)
+        except Exception as e:
+            log.error('[POST]/trendsentiment: Failed to publish data to kafka topic' + str(e))
 
         try:
             # store all tweets that we have analyzed for sentiment in mongo
