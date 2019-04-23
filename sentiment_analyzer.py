@@ -29,7 +29,7 @@ class SentimentAnalyzer:
         score = analyser.polarity_scores(sentence)
         return score['compound']
 
-    def compute_sentiment(self, country_code, city, hashtag, using_n_tweets=100):
+    def compute_sentiment(self, country_code, hashtag, city="Boulder", using_n_tweets=100):
         ''' calls Location Service to obtain LAT LON for a coutnry, city
         calls Tweet retriver to retrive tweets for a hashtag
         computes avg score '''

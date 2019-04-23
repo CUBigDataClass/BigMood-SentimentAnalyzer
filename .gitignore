@@ -1,4 +1,4 @@
-config/conf.py
+config/
 *.idea
 .vscode/
 

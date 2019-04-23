@@ -33,8 +33,7 @@ class listener(StreamListener):
 
             data = json_data
             if data is not None and [trend in data['text'] for trend in this.trends]:
-               print(f"Filtering for tweets with {this.trends[0]}")
-               tweet = data["text"]
+               tweet = data["text"] 
     
                this.tweets.append(tweet)
 
@@ -98,6 +97,7 @@ class TweetStream:
         self.bounding_boxes = bounding_boxes
         log.debug(f"Calling statuses/filter with bounding box location {self.bounding_boxes} and tracks (trends) {this.trends}")
         try:
+            this.count = 0
             self.client.filter(locations=self.bounding_boxes, track=self.trends)
         except Exception as ex:
             log.error(f'No tweets extracted; suppressing error: {ex}')
