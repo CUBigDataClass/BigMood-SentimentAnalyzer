@@ -5,16 +5,22 @@ from datetime import datetime, timedelta
 import json
 import os
 from sentiment_analyzer import SentimentAnalyzer
-from config.conf import MONGO
 from Aggregator import Aggregator
 from json import dumps
 from kafka import KafkaProducer
 
+from TweetRetriever import TweetRetriever
+from tweet_stream import TweetStream
+
 # Logging setup
 import logging
 import logstash
-from config.conf import logstash_host, logstash_port, app_port
-from config.conf import kafka_host
+from config.conf import *
+
+from Utils import get_timestamp
+
+import Producer_And_Consume
+from multiprocessing import Queue
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -30,24 +36,36 @@ db = client.sentiments_db
 # Use sentiment collection for storing purposes
 sentiments = db.sentiments_collection
 
-sentiment_analyzer = SentimentAnalyzer()
+# connect to kafka producer
+kafka_producer = KafkaProducer(bootstrap_servers=[kafka_host],
+                               value_serializer=lambda x:
+                               dumps(x).encode('utf-8'))
+
+tr = TweetRetriever()
+
+#shared object between consumer and producer.
+queue = Queue(maxsize=20000)
+
+producer = Producer_And_Consume.Producer("producer", queue)
+trends_consumer = []
+sentiment_analyzers = []
+for i in range(no_of_config_key):
+    sentiment_analyzer = SentimentAnalyzer(tr, TweetStream(twitter_keys[i]['streamConsumerKey'],
+                                                           twitter_keys[i]['streamConsumerSecret'],
+                                                           twitter_keys[i]['streamAccessTokenKey'],
+                                                           twitter_keys[i]['streamAccessTokenSecret']))
+
+    cr = Producer_And_Consume.ConsumerThread(str(i), queue, kafka_producer, sentiments, sentiment_analyzer,
+                                             consumer_sleep_time)
+    trends_consumer.append(cr)
+    sentiment_analyzers.append(sentiment_analyzer)
+    cr.start()
 
 aggregator = Aggregator(paths[0], paths[1])
-
-#connect to kafka producer
-producer = KafkaProducer(bootstrap_servers=[kafka_host],
-                         value_serializer=lambda x: 
-                         dumps(x).encode('utf-8'))
-kafka_topic = 'trendSentiment'
 
 # Elastic Beanstalk application setup
 # EB looks for an 'application' callable by default
 application = Flask(__name__)
-
-
-# function to get current timestamp used for get endpoint query parameters
-def get_timestamp():
-    return datetime.now().strftime(("%Y-%m-%d %H:%M:%S"))
 
 
 # Decorator for index page of endpoint
@@ -115,44 +133,54 @@ def post_trend_sentiment():
             schema = None
             try:
                 schema = compute_schema(trend_info)
-                
+
             except Exception as e:
-                log.error("[POST]/trendsentiment: failed to get the sentiment for trend info:" + str(trend_info) + "Error:" + str(e))
+                log.error("[POST]/trendsentiment: failed to get the sentiment for trend info:" + str(
+                    trend_info) + "Error:" + str(e))
             if schema is not None:
-                
                 analyzed_tweets.append(schema)
         try:
-            country_trends = aggregator.aggr_city_country(country_type_trends, city_type__trends)
-            
-            for trend_info in country_trends:
-                schema = compute_schema_country(trend_info)
-                
-                analyzed_tweets.append(schema)
+            log.info("total country type trends:" + str(len(
+                country_type_trends)) + " is sent for processing. Result will sent to kafka.")
+            producer.produce(country_type_trends)
+            # country_trends = aggregator.aggr_city_country(country_type_trends, city_type__trends)
+            #
+            # for trend_info in country_trends:
+            #     schema = compute_schema_country(trend_info)
+            #
+            #     analyzed_tweets.append(schema)
 
         except Exception as e:
             error = e
             log.error('[POST]/trendsentiment: Error in aggregating the the tweets countrywise: ' + str(e))
 
-        try:
-            #publish the schema to kafka topic
-            producer.send(kafka_topic, value=analyzed_tweets)
-        except Exception as e:
-            log.error('[POST]/trendsentiment: Failed to publish data to kafka topic' + str(e))
+        if len(analyzed_tweets) > 0:
+            try:
+                # publish the schema to kafka topic
+                kafka_producer.send(kafka_topic, value=analyzed_tweets)
+            except Exception as e:
+                log.error('[POST]/trendsentiment: Failed to publish data to kafka topic' + str(e))
 
-        try:
-            # store all tweets that we have analyzed for sentiment in mongo
-            print(f"Inserting analyzed tweets {analyzed_tweets}")
-            sentiments.insert_many(analyzed_tweets)
-            if error is None:
-                log.info(
-                    "[POST]/trendsentiment: Successfully inserted data in mongo db, total :" + str(len(analyzed_tweets)))
-                return dumps({'message': 'Succesfully created'})
-            else:
-                log.info("[POST]/trendsentiment: error in calling mongodb")
-                return dumps({'message': 'Succesfully created', 'error in aggregating trends': str(error)})
-        except Exception as e:
-            log.error('[POST]/trendsentiment: Some error occurred:' + str(e))
-            return dumps({'error': str(e)})
+            try:
+                # store all tweets that we have analyzed for sentiment in mongo
+                print(f"Inserting analyzed tweets {analyzed_tweets}")
+
+                sentiments.insert_many(analyzed_tweets)
+                if error is None:
+                    log.info(
+                        "[POST]/trendsentiment: Successfully inserted data in mongo db, total :" + str(
+                            len(analyzed_tweets)))
+                    return dumps({'message': 'Succesfully created'})
+                else:
+                    log.info("[POST]/trendsentiment: error in calling mongodb")
+                    return dumps({'message': 'Succesfully created', 'error in aggregating trends': str(error)})
+            except Exception as e:
+                log.error('[POST]/trendsentiment: Some error occurred:' + str(e))
+                return dumps({'error': str(e)})
+
+        else:
+            log.info("Nothing to publish on kafka or insert in mongo")
+            return dumps({'message': 'Nothing to publish on kafka or insert in mongo'})
 
 
 def compute_schema(trend_info):
@@ -163,26 +191,11 @@ def compute_schema(trend_info):
         'city': trend_info.get('city', None),
         'trends': [{
             'name': tweet['name'],
-            'sentiment': sentiment_analyzer.compute_sentiment(country_code=trend_info['countryCode'], hashtag=tweet['name'], city=trend_info['city']),
+            'sentiment': sentiment_analyzers[0].compute_sentiment(trend_info['country'], trend_info['city'],
+                                                                  tweet['name']),
             'rank': tweet['rank'],
-            'tweetVolume': tweet['tweetVolume']
-        } for tweet in trend_info['twitterTrendInfo']],
-        'timestamp': get_timestamp()
-    }
-    return schema
-
-
-def compute_schema_country(trend_info):
-    schema = {
-        'country': trend_info['country'],
-        'countryCode': trend_info['countryCode'],
-        'locationType': trend_info['locationType'],
-        'city': trend_info.get('city', None),
-        'trends': [{
-            'name': tweet['name'],
-            'sentiment': sentiment_analyzer.compute_sentiment(country_code=trend_info['countryCode'], hashtag=tweet['name']), # tweet['sentiment'],
-            'rank': tweet['rank'],
-            'tweetVolume': tweet['tweetVolume']
+            'tweetVolume': tweet['tweetVolume'],
+            'url': tweet['url']
         } for tweet in trend_info['twitterTrendInfo']],
         'timestamp': get_timestamp()
     }
