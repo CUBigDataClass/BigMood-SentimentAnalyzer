@@ -34,7 +34,7 @@ client = MongoClient(MONGO["URI"])
 db = client.sentiments_db
 
 # Use sentiment collection for storing purposes
-sentiments = db.sentiments_collection_test
+sentiments = db.sentiments_collection
 
 # connect to kafka producer
 kafka_producer = KafkaProducer(bootstrap_servers=[kafka_host],
