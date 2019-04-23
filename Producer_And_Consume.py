@@ -61,6 +61,15 @@ class ConsumerThread(Thread):
                         self.kafka_producer.send(kafka_topic, value=analyzed_tweets)
                     except Exception as e:
                         log.error('[POST]/trendsentiment: Failed to publish data to kafka topic' + str(e))
+
+                    try:
+                        # store all tweets that we have analyzed for sentiment in mongo
+                        log.debug(f"Inserting analyzed tweets {analyzed_tweets}")
+
+                        self.mongodb.insert_many(analyzed_tweets)
+                    except Exception as dbe:
+                        log.error('[POST]/trendsentiment: Failed to inser data to mongo db topic' + str(dbe))
+
                 except Exception as err:
                     log.error(
                         '[POST]/trendsentiment: -> Consumer thread: ' + self.getName() + ' Failed to compute sentiment:' + str(

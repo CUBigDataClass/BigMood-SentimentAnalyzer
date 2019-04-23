@@ -163,7 +163,7 @@ def post_trend_sentiment():
 
             try:
                 # store all tweets that we have analyzed for sentiment in mongo
-                print(f"Inserting analyzed tweets {analyzed_tweets}")
+                log.debug(f"Inserting analyzed tweets {analyzed_tweets}")
 
                 sentiments.insert_many(analyzed_tweets)
                 if error is None:
