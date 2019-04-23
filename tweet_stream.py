@@ -5,7 +5,7 @@ import json
 from tweepy import Stream
 from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
-from config.conf import consumerKey, consumerSecret, accessTokenKey, accessTokenSecret
+from config.conf import streamConsumerKey, streamConsumerSecret, streamAccessTokenKey, streamAccessTokenSecret
 
 
 # Logging setup
@@ -52,21 +52,21 @@ class TweetStream:
             num_tweets = number of tweets you want to get back from calling statuses/filter Twitter endpoint'''
 
     def __init__(self, num_tweets=this.num_tweets):
-        log.debug(f'Initializing {__name__} with "{num_tweets}" as number of tweets to search')
+        log.info(f'Initializing {__name__} with "{num_tweets}" as number of tweets to search')
         self.num_tweets = num_tweets
         self.tweets = this.tweets
         # Load consumer keys from imported configuration.
-        log.debug('Loading comsumer keys from configuration file')
-        self.consumer_key = consumerKey
-        self.consumer_secret = consumerSecret
-        self.access_token = accessTokenKey
-        self.access_secret = accessTokenSecret
+        log.info('Loading comsumer keys from configuration file')
+        self.consumer_key = streamConsumerKey
+        self.consumer_secret = streamConsumerSecret
+        self.access_token = streamAccessTokenKey
+        self.access_secret = streamAccessTokenSecret
         # Ensure API keys are present.
         if 0 in [len(self.consumer_key), len(self.consumer_secret)]:
             raise EnvironmentError('At least one Twitter API key is not defined in config.conf')
         else:
             log.info('Twitter API key and secret key loaded')
-        log.debug('Initializing Twitter client')
+        log.info('Initializing Twitter client')
         self.client = self._initialize_client()
         if self.client is not None:
             return
@@ -84,9 +84,9 @@ class TweetStream:
             auth = OAuthHandler(self.consumer_key, self.consumer_secret)
             auth.set_access_token(self.access_token, self.access_secret)
             client = Stream(auth, listener())
-            log.debug('Successfully initialized Twitter client')
+            log.info('Successfully initialized Twitter client')
         except Exception as ex:
-            log.warning(f'Connection or access token retrievel error: {ex}')
+            log.error(f'Connection or access token retrievel error: {ex}')
             client = None
         return client
         
@@ -95,7 +95,7 @@ class TweetStream:
         this.trends = trends
         self.trends = this.trends
         self.bounding_boxes = bounding_boxes
-        log.debug(f"Calling statuses/filter with bounding box location {self.bounding_boxes} and tracks (trends) {this.trends}")
+        log.info(f"Calling statuses/filter with bounding box location {self.bounding_boxes} and tracks (trends) {this.trends}")
         try:
             this.count = 0
             self.client.filter(locations=self.bounding_boxes, track=self.trends)
