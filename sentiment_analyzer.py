@@ -59,7 +59,7 @@ class SentimentAnalyzer:
         compound_sum = 0
         num_tweets = len(tweets)
         if num_tweets == 0:
-            log.warning(f'No tweets found! Returning 0 sentiment for Country {country_code}, Hashtag {hashtag} pair')
+            log.warning(f'[compute_sentiment_for_country] - No tweets found! Returning 0 sentiment for Country {country_code}, Hashtag {hashtag} pair')
             return 0
         for tweet in tweets:
             compound_score = self.sentiment_analyzer(tweet)

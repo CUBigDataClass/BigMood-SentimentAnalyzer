@@ -50,6 +50,7 @@ class ConsumerThread(Thread):
                 log.debug("Nothing to consume. Sleeping for seconds = " + str(self.sleep_time))
                 time.sleep(self.sleep_time)
             else:
+                log.info("Consumer - consuming data: Data left to consume = " + str(len(self.queue)))
                 try:
                     trend_info = self.queue.get()
                     analyzed_tweets = []
