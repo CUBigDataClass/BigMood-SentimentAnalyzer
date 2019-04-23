@@ -68,7 +68,7 @@ class ConsumerThread(Thread):
 
                         self.mongodb.insert_many(analyzed_tweets)
                     except Exception as dbe:
-                        log.error('[POST]/trendsentiment: Failed to inser data to mongo db topic' + str(dbe))
+                        log.error('[POST]/trendsentiment: Failed to insert data to mongo db' + str(dbe))
 
                 except Exception as err:
                     log.error(
