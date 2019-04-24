@@ -47,10 +47,10 @@ class ConsumerThread(Thread):
         log.info("Stream-Consumer thread starting Thread Name:" + self.getName())
         while True:
             if (self.queue.empty()):
-                log.debug("Nothing to consume. Sleeping for seconds = " + str(self.sleep_time))
+                log.debug("Nothing to consume." + self.getName() + " Sleeping for seconds = " + str(self.sleep_time))
                 time.sleep(self.sleep_time)
             else:
-                log.info("Consumer - consuming data: Data left to consume = " + str(len(self.queue)))
+                log.info("Consumer tr: " + self.getName() + " - consuming countryType data:")
                 try:
                     trend_info = self.queue.get()
                     analyzed_tweets = []
@@ -60,6 +60,7 @@ class ConsumerThread(Thread):
                     try:
                         # publish the schema to kafka topic
                         self.kafka_producer.send(kafka_topic, value=analyzed_tweets)
+                        log.info(f"[CountryType]Thread {self.getName()} : sent :{trend_info} to kafka.")
                     except Exception as e:
                         log.error('[POST]/trendsentiment: Failed to publish data to kafka topic' + str(e))
 

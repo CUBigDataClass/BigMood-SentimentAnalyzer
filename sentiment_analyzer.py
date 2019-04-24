@@ -57,11 +57,16 @@ class SentimentAnalyzer:
         country_bounding_box = self.ag.get_country_bb(country_code)
         tweets = self.ts.get_tweets(bounding_boxes=country_bounding_box, trends=[hashtag], num_tweets=using_n_tweets)
         compound_sum = 0
-        num_tweets = len(tweets)
-        if num_tweets == 0:
-            log.warning(f'[compute_sentiment_for_country] - No tweets found! Returning 0 sentiment for Country {country_code}, Hashtag {hashtag} pair')
+        if tweets is not None:
+            num_tweets = len(tweets)
+            if num_tweets == 0:
+                log.warning(f'[compute_sentiment_for_country] - No tweets found! Returning 0 sentiment for Country {country_code}, Hashtag {hashtag} pair')
+                return 0
+            for tweet in tweets:
+                compound_score = self.sentiment_analyzer(tweet)
+                compound_sum += compound_score
+            return compound_sum / num_tweets
+        else:
+            log.error("[compute_sentiment_for_country] - no tweets from twitter")
             return 0
-        for tweet in tweets:
-            compound_score = self.sentiment_analyzer(tweet)
-            compound_sum += compound_score
-        return compound_sum / num_tweets
+
