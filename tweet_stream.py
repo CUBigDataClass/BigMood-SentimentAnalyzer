@@ -10,6 +10,7 @@ from tweepy.streaming import StreamListener
 import logging
 import logstash
 from config.conf import logstash_host, logstash_port
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 log.addHandler(logstash.TCPLogstashHandler(logstash_host, logstash_port, version=1))
@@ -22,20 +23,20 @@ this.tweets = []
 this.trends = ["#"]
 
 
-class listener(StreamListener):   
+class listener(StreamListener):
     def on_data(self, data):
 
-        #How many tweets you want to find, could change to time based
+        # How many tweets you want to find, could change to time based
         if this.count <= this.num_tweets:
             json_data = json.loads(data)
 
             data = json_data
             if data is not None and [trend in data['text'] for trend in this.trends]:
-               tweet = data["text"] 
-    
-               this.tweets.append(tweet)
+                tweet = data["text"]
 
-               this.count += 1
+                this.tweets.append(tweet)
+
+                this.count += 1
             return True
         else:
             return False
@@ -49,7 +50,8 @@ class TweetStream:
             your Twitter app should be present in environment variables.
             num_tweets = number of tweets you want to get back from calling statuses/filter Twitter endpoint'''
 
-    def __init__(self, streamConsumerKey, streamConsumerSecret, streamAccessTokenKey, streamAccessTokenSecret, num_tweets=this.num_tweets):
+    def __init__(self, streamConsumerKey, streamConsumerSecret, streamAccessTokenKey, streamAccessTokenSecret,
+                 num_tweets=this.num_tweets):
         log.info(f'Initializing {__name__} with "{num_tweets}" as number of tweets to search')
         self.num_tweets = num_tweets
         self.tweets = this.tweets
@@ -69,7 +71,6 @@ class TweetStream:
         if self.client is None:
             raise Exception('Failed to initialize TweetStream')
 
-
     def _initialize_client(self):
         '''Initialize the tweepy API client'''
 
@@ -85,23 +86,18 @@ class TweetStream:
             log.error(f'Connection or access token retrievel error: {ex}')
             client = None
         return client
-        
+
     def get_tweets(self, bounding_boxes, trends, num_tweets):
         this.num_tweets = num_tweets
         this.trends = trends
         self.trends = this.trends
         self.bounding_boxes = bounding_boxes
-        log.info(f"Calling statuses/filter with bounding box location {self.bounding_boxes} and tracks (trends) {this.trends}")
+        log.info(
+            f"Calling statuses/filter with bounding box location {self.bounding_boxes} and tracks (trends) {this.trends}")
         try:
             this.count = 0
             self.client.filter(locations=self.bounding_boxes, track=self.trends)
         except Exception as ex:
             log.error(f'No tweets extracted; suppressing error: {ex}')
-            this.tweets = None
+            this.tweets = []
         return this.tweets
-
-
-
-    
-
-    
