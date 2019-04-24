@@ -47,7 +47,7 @@ class ConsumerThread(Thread):
         log.info("Stream-Consumer thread starting Thread Name:" + self.getName())
         while True:
             if (self.queue.empty()):
-                log.debug("Nothing to consume. Sleeping for seconds = " + str(self.sleep_time))
+                log.info("Nothing to consume. Sleeping for seconds = " + str(self.sleep_time))
                 time.sleep(self.sleep_time)
             else:
                 log.info("Consumer - consuming data: Data left to consume = " + str(len(self.queue)))
