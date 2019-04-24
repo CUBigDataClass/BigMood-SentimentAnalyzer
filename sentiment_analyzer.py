@@ -39,14 +39,14 @@ class SentimentAnalyzer:
         if tweets is not None:
             num_tweets = len(tweets)
             if num_tweets == 0:
-                log.warning(f'No tweets found! Returning 0 sentiment for Country {country}, Hashtag {hashtag} pair')
+                log.warning(f'No tweets found! Returning 0 sentiment for Country {country}, City {city}, LAT {coords[LAT]}, LON {coords[LON]} and Hashtag {hashtag}')
                 return 0
             for tweet in tweets:
                 compound_score = self.sentiment_analyzer(tweet)
                 compound_sum += compound_score
             return compound_sum / num_tweets
         else:
-            log.warning(f'No tweets found! Returning 0 sentiment for Country {country}, Hashtag {hashtag} pair')
+            log.warning(f'No tweets found! Returning 0 sentiment for Country {country}, City {city}, LAT {coords[LAT]}, LON {coords[LON]} and Hashtag {hashtag}')
             return 0
 
     def compute_sentiment_for_country(self, country_code, hashtag, city="Boulder", using_n_tweets=100):
