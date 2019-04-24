@@ -54,12 +54,15 @@ for i in range(no_of_config_key):
                                                            twitter_keys[i]['streamConsumerSecret'],
                                                            twitter_keys[i]['streamAccessTokenKey'],
                                                            twitter_keys[i]['streamAccessTokenSecret']))
-
-    cr = Producer_And_Consume.ConsumerThread(str(i), queue, kafka_producer, sentiments, sentiment_analyzer,
-                                             consumer_sleep_time)
-    trends_consumer.append(cr)
-    sentiment_analyzers.append(sentiment_analyzer)
-    cr.start()
+    try:
+        log.info("Starting Producer_And_Consume.ConsumerThread")
+        cr = Producer_And_Consume.ConsumerThread(str(i), queue, kafka_producer, sentiments, sentiment_analyzer,
+                                                 consumer_sleep_time)
+        trends_consumer.append(cr)
+        sentiment_analyzers.append(sentiment_analyzer)
+        cr.start()
+    except Exception as ex:
+        log.error("failed to start consumer threads." + str(ex))
 
 aggregator = Aggregator(paths[0], paths[1])
 
