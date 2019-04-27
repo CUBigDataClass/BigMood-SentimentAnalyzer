@@ -32,7 +32,7 @@ logstash_port = XXXX				# Logstash port
 app_port = XXXX					# App's port number
 kafka_host = "XX.XXX.XXX.XXX:XXXX"		# Kafka hostname and port
 kafka_topic = "XXXX"				# Kafka topic 
-consumer_sleep_time = "XXX"			# Kafka consumer sleep time
+consumer_sleep_time = XX			# Kafka consumer sleep time in seconds
 twitter_keys = [{				# Twitter keys
 	'streamConsumerKey': "XXXX",
     	'streamConsumerSecret': "XXXX",
