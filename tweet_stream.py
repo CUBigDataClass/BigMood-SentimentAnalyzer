@@ -28,10 +28,9 @@ class listener(StreamListener):
 
         # How many tweets you want to find, could change to time based
         if this.count <= this.num_tweets:
-            json_data = json.loads(data)
+            data = json.loads(data)
 
-            data = json_data
-            if data is not None and [trend in data['text'] for trend in this.trends]:
+            if data is not None and 'text' in data and [trend in data['text'] for trend in this.trends]:
                 tweet = data["text"]
 
                 this.tweets.append(tweet)

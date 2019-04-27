@@ -6,7 +6,7 @@ from Aggregator import Aggregator
 # Logging setup
 import logging
 import logstash
-from config.conf import logstash_host, logstash_port
+from config.conf import logstash_host, logstash_port, kafka_country_tweets_topic
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -49,18 +49,22 @@ class SentimentAnalyzer:
             log.warning(f'No tweets found! Returning 0 sentiment for Country {country}, City {city}, LAT {coords[LAT]}, LON {coords[LON]} and Hashtag {hashtag}')
             return 0
 
-    def compute_sentiment_for_country(self, country_code, hashtag, city="Boulder", using_n_tweets=100):
+    def compute_sentiment_for_country(self, country_code, hashtag, city="Boulder", using_n_tweets=100,
+                                      produce_on_kafka=None):
         ''' calls Location Service to obtain LAT LON for a coutnry, city
         calls Tweet retriver to retrive tweets for a hashtag
         computes avg score '''
         log.debug(f"computing sentiment for Country {country_code}, Hashtag {hashtag} pair")
         country_bounding_box = self.ag.get_country_bb(country_code)
         tweets = self.ts.get_tweets(bounding_boxes=country_bounding_box, trends=[hashtag], num_tweets=using_n_tweets)
+        if produce_on_kafka is not None and tweets is not None and len(tweets) > 0:
+            produce_on_kafka.send(kafka_country_tweets_topic, value=tweets)
         compound_sum = 0
         if tweets is not None:
             num_tweets = len(tweets)
             if num_tweets == 0:
-                log.warning(f'[compute_sentiment_for_country] - No tweets found! Returning 0 sentiment for Country {country_code}, Hashtag {hashtag} pair')
+                log.warning(
+                    f'[compute_sentiment_for_country] - No tweets found! Returning 0 sentiment for Country {country_code}, Hashtag {hashtag} pair')
                 return 0
             for tweet in tweets:
                 compound_score = self.sentiment_analyzer(tweet)
@@ -69,4 +73,3 @@ class SentimentAnalyzer:
         else:
             log.error("[compute_sentiment_for_country] - no tweets from twitter")
             return 0
-

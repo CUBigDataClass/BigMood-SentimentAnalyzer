@@ -1,6 +1,5 @@
 from threading import Thread
 import time
-import random
 
 # Logging setup
 import logging
@@ -54,7 +53,7 @@ class ConsumerThread(Thread):
                 try:
                     trend_info = self.queue.get()
                     analyzed_tweets = []
-                    schema = self.compute_schema_country(trend_info)
+                    schema = self.compute_schema_country(trend_info, produce_on_kafka=self.kafka_producer)
                     analyzed_tweets.append(schema)
 
                     try:
@@ -71,13 +70,13 @@ class ConsumerThread(Thread):
                         self.mongodb.insert_many(analyzed_tweets)
                     except Exception as dbe:
                         log.error('[POST]/trendsentiment: Failed to insert data to mongo db' + str(dbe))
-
+                    log.info("Consumer tr: " + self.getName() + " - Done consuming countryType")
                 except Exception as err:
                     log.error(
                         '[POST]/trendsentiment: -> Consumer thread: ' + self.getName() + ' Failed to compute sentiment:' + str(
                             err))
 
-    def compute_schema_country(self, trend_info):
+    def compute_schema_country(self, trend_info, produce_on_kafka=None):
         schema = {
             'country': trend_info['country'],
             'countryCode': trend_info['countryCode'],
@@ -86,7 +85,8 @@ class ConsumerThread(Thread):
             'trends': [{
                 'name': tweet['name'],
                 'sentiment': self.sentiment_analyzer.compute_sentiment_for_country(
-                    country_code=trend_info['countryCode'], hashtag=tweet['name']),  # tweet['sentiment'],
+                    country_code=trend_info['countryCode'], hashtag=tweet['name'], produce_on_kafka=produce_on_kafka),
+            # tweet['sentiment'],
                 'rank': tweet['rank'],
                 'tweetVolume': tweet['tweetVolume'],
                 'url': tweet['url']
