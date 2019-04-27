@@ -8,14 +8,15 @@ Read more about VADER [here](https://github.com/cjhutto/vaderSentiment)
 
 ## Getting Started
 
-Step 1:
+Step 1: <br>
 Deploy the following services on GCP. Note the credentials for each and use them in Step 2. 
 1. MongoDB
 2. RedisCache
 3. Kafka
 4. Logstash
 
-Step 2: In the config folder, add a file conf.py containing the following configurations :
+Step 2: <br>
+In the config folder, add a file conf.py containing the following configurations :
 ```
 UN = "XXX"                          		# MongoDB username for trends
 PW = "XXX"                          		# MongoDB password for trends
@@ -39,8 +40,8 @@ consumerSecret = "XXXXXX"			# Twitter consumer secret
 accessKey = "XXXXX"				# Twitter access key
 accessSecret = "XXXXX"				# Twitter access secret
 ```
-Step 3: 
-Build the docker container (replace path with the project folder name) :
-```docker build PATH .```
-Run the docker container (replace image with the image name built above) :
+Step 3: <br>
+Build the docker container (replace path with the project folder name) : <br>
+```docker build PATH .``` <br>
+Run the docker container (replace image with the image name built above) : <br>
 ```docker run IMAGE```
