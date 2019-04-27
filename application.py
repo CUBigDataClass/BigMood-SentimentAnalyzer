@@ -43,7 +43,7 @@ kafka_producer = KafkaProducer(bootstrap_servers=[kafka_host],
 
 tr = TweetRetriever()
 
-#shared object between consumer and producer.
+# shared object between consumer and producer.
 queue = Queue(maxsize=20000)
 
 producer = Producer_And_Consume.Producer("producer", queue)
