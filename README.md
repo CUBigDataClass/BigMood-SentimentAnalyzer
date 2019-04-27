@@ -3,7 +3,7 @@
 # BigMood-SentimentAnalyzer
 This repository contains Sentiment Analyzer for the project Big Mood. Using the currently trending topics on twitter, we display the general mood of a location. This is done by retrieving tweets for trending hashtags and performing sentiment analysis using VADER sentiment analysis tool.
 
-The steps given below will expose the trendsentiment endpoint which gets trending hashtags from BigMood-API. The sentiment for the trends is calculated and updated JSON schema is published to kafka and inserted to MongoDB. Logs can be viewed on Kibana. 
+The steps given below will expose the trendsentiment endpoint which gets trending hashtags from BigMood-API. The sentiment for the trends is calculated and updated JSON schema is published to kafka and inserted to MongoDB. Logs can be viewed on Kibana. In addition to the steps below, we have setup CI-CD using TravisCI. 
 Read more about VADER [here](https://github.com/cjhutto/vaderSentiment)
 
 ## Getting Started
