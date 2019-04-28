@@ -95,7 +95,8 @@ output {
   elasticsearch {
     hosts => ["localhost:9200"]
   }
-}```
+}
+```
 
 Remember that once the configuration file has been changed, the service must be restarted (`sudo service logstash restart)` for changes to take effect.
 
@@ -156,4 +157,5 @@ backend nodes
      http-request set-header X-Forwarded-Port %[dst_port]
      http-request add-header X-Forwarded-Proto https if { ssl_fc }
      option httpchk HEAD / HTTP/1.1\r\nHost:localhost
-     server server1 127.0.0.1:5601 check```
+     server server1 127.0.0.1:5601 check
+     ```
