@@ -61,6 +61,8 @@ class SentimentAnalyzer:
             total = int(len(tweets) * (0.1))
             if total > 0:
                 produce_on_kafka.send(kafka_country_tweets_topic, value=tweets[0:total])
+            else:
+                log.warning("[Country] - The tweet volume was less that 10")
         compound_sum = 0
         if tweets is not None:
             num_tweets = len(tweets)
