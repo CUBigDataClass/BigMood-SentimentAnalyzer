@@ -50,10 +50,10 @@ producer = Producer_And_Consume.Producer("producer", queue)
 trends_consumer = []
 sentiment_analyzers = []
 for i in range(no_of_config_key):
-    sentiment_analyzer = SentimentAnalyzer(tr, TweetStream(twitter_keys[i]['streamConsumerKey'],
+    sentiment_analyzer = SentimentAnalyzer(tr, [twitter_keys[i]['streamConsumerKey'],
                                                            twitter_keys[i]['streamConsumerSecret'],
                                                            twitter_keys[i]['streamAccessTokenKey'],
-                                                           twitter_keys[i]['streamAccessTokenSecret']))
+                                                           twitter_keys[i]['streamAccessTokenSecret']])
     try:
         log.info("Starting Producer_And_Consume.ConsumerThread")
         cr = Producer_And_Consume.ConsumerThread(str(i), queue, kafka_producer, sentiments, sentiment_analyzer,
