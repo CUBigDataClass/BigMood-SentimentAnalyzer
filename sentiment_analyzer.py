@@ -6,7 +6,7 @@ from Aggregator import Aggregator
 # Logging setup
 import logging
 import logstash
-from config.conf import logstash_host, logstash_port, kafka_country_tweets_topic
+from config.conf import logstash_host, logstash_port, kafka_country_tweets_topic, weight
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -45,8 +45,8 @@ class SentimentAnalyzer:
                 compound_score = self.sentiment_analyzer(tweet)
                 compound_sum += compound_score
             avg_score = compound_sum / num_tweets
-            if avg_score <= 0.5 and avg_score >= -0.5:
-                scaled_score = avg_score * 1.5
+            if avg_score <= 0.25 and avg_score >= -0.25:
+                scaled_score = avg_score * weight
             else:
                 scaled_score =  avg_score
             return scaled_score
@@ -79,8 +79,8 @@ class SentimentAnalyzer:
                 compound_score = self.sentiment_analyzer(tweet)
                 compound_sum += compound_score
             avg_score = compound_sum / num_tweets
-            if avg_score <= 0.5 and avg_score >= -0.5:
-                scaled_score = avg_score * 1.5
+            if avg_score <= 0.25 and avg_score >= -0.25:
+                scaled_score = avg_score * weight
             else:
                 scaled_score =  avg_score
             return scaled_score
