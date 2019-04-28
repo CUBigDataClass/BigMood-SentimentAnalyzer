@@ -67,8 +67,84 @@ Because querying tweets by city requires only a simple GET request to the Twitte
 
 ### Country
 
+Retrieving tweets on a per-country basis is covered by the `TweetStream` class, which uses the [`tweepy`](http://www.tweepy.org/) library to abstract the Twitter API. Initialize a `TweetStream` with the appropriate credentials to have access to Twitter's [`status/filter`](https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter.html) endpoint.
+
+Once a `TweetStream` object is successfully intialized, the instance method `get_tweets(bounding_boxes, trends, num_tweets)` will return tweets using [`tweepy`'s](https://tweepy.readthedocs.io/en/latest/streaming_how_to.html) streaming functionality. Each bounding box should be specified as a pair of longitude and latitude pairs, with the southwest corner of the bounding box coming first. We have provided a list of bounding boxes in the [bounding_box.json](https://github.com/CUBigDataClass/BigMood-SentimentAnalyzer/blob/master/data/bounding_box.json) file. The `trends` are sent by the node.js server as a call to our POST endpoint.
+
+
+
+
 ## REST API Specifications
-(GET, POST, etc)
+### Show Latest Tweets
+
+Get the details of the latest tweets.
+
+**URL** : `/trendsentiment`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Permissions required** : None
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content examples**
+
+For a User with ID 1234 on the local database where that User has saved an
+email address and name information.
+
+```json
+{"trends":
+[
+  {
+    "city":"Portsmouth",
+    "country":"United Kingdom",
+    "countryCode":"GB",
+    "locationType":"City",
+    "timestamp":"2019-04-27 20:00:57",
+    "trends":
+    [
+        {
+          "name":"Endgame",
+          "rank":1,
+          "sentiment":0.25058,
+          "tweetVolume":1288426,
+          "url":"http://twitter.com/search?q=Endgame"
+        },
+        {
+          "name":"London",
+          "rank":2,
+          "sentiment":0.272458,
+          "tweetVolume":247982,
+          "url":"http://twitter.com/search?q=London"
+          },
+        {
+          "name":"#ThankYouAvengers",
+          "rank":3,
+          "sentiment":0.3578857142857142,
+          "tweetVolume":211037,
+          "url":"http://twitter.com/search?q=%23ThankYouAvengers"
+          },
+        {
+          "name":"Wembley",
+          "rank":4,
+          "sentiment":0.23150999999999997,
+          "tweetVolume":40480,
+          "url":"http://twitter.com/search?q=Wembley"
+        },
+        {
+          "name":"Days Gone",
+          "rank":5,
+          "sentiment":0.19040769230769233,
+          "tweetVolume":34142,
+          "url":"http://twitter.com/search?q=%22Days+Gone%22"
+        }
+    ]}
+]}
+```
 
 ## Kafka Producer
 
