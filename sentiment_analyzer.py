@@ -58,7 +58,9 @@ class SentimentAnalyzer:
         country_bounding_box = self.ag.get_country_bb(country_code)
         tweets = self.ts.get_tweets(bounding_boxes=country_bounding_box, trends=[hashtag], num_tweets=using_n_tweets)
         if produce_on_kafka is not None and tweets is not None and len(tweets) > 0:
-            produce_on_kafka.send(kafka_country_tweets_topic, value=tweets)
+            total = int(len(tweets) * (0.1))
+            if total > 0:
+                produce_on_kafka.send(kafka_country_tweets_topic, value=tweets[0:total])
         compound_sum = 0
         if tweets is not None:
             num_tweets = len(tweets)
