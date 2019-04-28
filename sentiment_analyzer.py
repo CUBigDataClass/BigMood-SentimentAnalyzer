@@ -6,7 +6,7 @@ from Aggregator import Aggregator
 # Logging setup
 import logging
 import logstash
-from config.conf import logstash_host, logstash_port, kafka_country_tweets_topic
+from config.conf import logstash_host, logstash_port, kafka_country_tweets_topic, weight
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -44,7 +44,12 @@ class SentimentAnalyzer:
             for tweet in tweets:
                 compound_score = self.sentiment_analyzer(tweet)
                 compound_sum += compound_score
-            return compound_sum / num_tweets
+            avg_score = compound_sum / num_tweets
+            if avg_score <= 0.25 and avg_score >= -0.25:
+                scaled_score = avg_score * weight
+            else:
+                scaled_score =  avg_score
+            return scaled_score
         else:
             log.warning(f'No tweets found! Returning 0 sentiment for Country {country}, City {city}, LAT {coords[LAT]}, LON {coords[LON]} and Hashtag {hashtag}')
             return 0
@@ -73,7 +78,12 @@ class SentimentAnalyzer:
             for tweet in tweets:
                 compound_score = self.sentiment_analyzer(tweet)
                 compound_sum += compound_score
-            return compound_sum / num_tweets
+            avg_score = compound_sum / num_tweets
+            if avg_score <= 0.25 and avg_score >= -0.25:
+                scaled_score = avg_score * weight
+            else:
+                scaled_score =  avg_score
+            return scaled_score
         else:
             log.error("[compute_sentiment_for_country] - no tweets from twitter")
             return 0
