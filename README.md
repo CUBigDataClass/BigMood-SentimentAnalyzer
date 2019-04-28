@@ -51,3 +51,19 @@ Build the docker container (replace path with the project folder name) : <br>
 ```docker build PATH .``` <br>
 Run the docker container (replace image with the image name built above) : <br>
 ```docker run IMAGE```
+
+
+## Sentiment Analysis
+
+## Tweet Retrieval for City and Country
+
+### City
+
+### Country
+
+## REST API Specifications
+(GET, POST, etc)
+
+## Kafka Producer
+
+## Elastic Stack Setup
