@@ -87,6 +87,7 @@ class TweetStream:
         return client
 
     def get_tweets(self, bounding_boxes, trends, num_tweets):
+        this.tweets = []
         this.num_tweets = num_tweets
         this.trends = trends
         self.trends = this.trends
