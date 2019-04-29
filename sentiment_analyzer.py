@@ -58,8 +58,13 @@ class SentimentAnalyzer:
         computes avg score '''
         log.debug(f"computing sentiment for Country {country_code}, Hashtag {hashtag} pair")
         country_bounding_box = self.ag.get_country_bb(country_code)
-        ts = TweetStream(self.tw_stream_config[0], self.tw_stream_config[1], self.tw_stream_config[2], self.tw_stream_config[3])
-        tweets = ts.get_tweets(bounding_boxes=country_bounding_box, trends=[hashtag], num_tweets=using_n_tweets)
+        tweets = []
+        try:
+            ts = TweetStream(self.tw_stream_config[0], self.tw_stream_config[1], self.tw_stream_config[2], self.tw_stream_config[3])
+            tweets = ts.get_tweets(bounding_boxes=country_bounding_box, trends=[hashtag], num_tweets=using_n_tweets)
+        except Exception as ex:
+            log.error("[Country] Error occurred in retrieving tweets" + str(ex))
+
         if produce_on_kafka is not None and tweets is not None and len(tweets) > 0:
             total = int(len(tweets) * (0.1))
             if total > 0:

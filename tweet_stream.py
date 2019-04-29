@@ -10,6 +10,7 @@ from tweepy.streaming import StreamListener
 import logging
 import logstash
 from config.conf import logstash_host, logstash_port
+import time
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -21,10 +22,14 @@ this.count = 0
 this.num_tweets = 100
 this.tweets = []
 this.trends = ["#"]
-
+this.st_time = time.time()
 
 class listener(StreamListener):
     def on_data(self, data):
+
+        if time.time() - this.st_time > 60:
+            log.error("[Tweet stream] on data timing out. Couldn't find tweets within 60 seconds")
+            return False
 
         # How many tweets you want to find, could change to time based
         if this.count <= this.num_tweets:
@@ -42,6 +47,12 @@ class listener(StreamListener):
 
     def on_error(self, status):
         log.error(status)
+
+    def on_timeout(self):
+        log.error("[Tweet stream] timing out. Couldn't find tweets within 60 seconds")
+
+    def on_disconnect(self, notice):
+        log.error("[Tweet stream] disconnected. Couldn't find tweets within 60 seconds")
 
 
 class TweetStream:
@@ -67,6 +78,7 @@ class TweetStream:
             log.info('Twitter API key and secret key loaded')
         log.info('Initializing Twitter client')
         self.client = self._initialize_client()
+
         if self.client is None:
             raise Exception('Failed to initialize TweetStream')
 
@@ -79,7 +91,7 @@ class TweetStream:
             # Re-initialize our client object that stores the access token for later use.
             auth = OAuthHandler(self.consumer_key, self.consumer_secret)
             auth.set_access_token(self.access_token, self.access_secret)
-            client = Stream(auth, listener())
+            client = Stream(auth, listener(), timeout=60)
             log.info('Successfully initialized Twitter client')
         except Exception as ex:
             log.error(f'Connection or access token retrievel error: {ex}')
@@ -90,6 +102,7 @@ class TweetStream:
         this.tweets = []
         this.num_tweets = num_tweets
         this.trends = trends
+        this.st_time = time.time()
         self.trends = this.trends
         self.bounding_boxes = bounding_boxes
         log.info(
