@@ -54,9 +54,11 @@ Run the docker container (replace image with the image name built above) : <br>
 
 ## Sentiment Analysis
 
-A lexicon and rule based sentiment analysis tool  called VADER is used to calculate sentiment scores. It has been known to be successful specifically when dealing with social media text and is fast to be used with streaming data. </br> 
+A lexicon and rule based sentiment analysis tool  called VADER is used to calculate sentiment scores. It has been known to be successful specifically when dealing with social media text and is fast to be used with streaming data. It also performs well with emojis, exclamation marks, slangs etc.  <br> 
 
-The `SentimentAnalyzer` class has functions that call the location service to get latitude and longitude for a city and uses the `TweetRetriver` get tweets for a city. In case of a country, tweets are retrieved using the twitter streaming api with the help of bounding boxes. These tweets analyzed by VADER and a sentiment score is returned.
+The `SentimentAnalyzer` class has functions that call the location service to get latitude and longitude for a city and uses the `TweetRetriver` get tweets for a city. In case of a country, tweets are retrieved using the twitter streaming api with the help of bounding boxes. The tweets are passed to the `polarity_scores()` method and polarity indices of the tweets are obtained. The compund score metric has been used to represent the overall sentiment of the tweet. This score varies from -1 (extremely negative) to +1 (extremely positive). <br>
+
+The reason for choosing this library over others was that it not just tells whether the text is positive or negative but also tells how positive or negative the text is. 
 
 
 ## Tweet Retrieval for City and Country
