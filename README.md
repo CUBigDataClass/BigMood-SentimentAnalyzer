@@ -1,10 +1,9 @@
 [![Build Status](https://travis-ci.com/CUBigDataClass/BigMood-SentimentAnalyzer.svg?branch=master)](https://travis-ci.com/CUBigDataClass/BigMood-SentimentAnalyzer)
 <br />
 # BigMood-SentimentAnalyzer
-This repository contains Sentiment Analyzer for the project Big Mood. Using the currently trending topics on twitter, we display the general mood of a location. This is done by retrieving tweets for trending hashtags and performing sentiment analysis using VADER sentiment analysis tool.
+This repository contains Sentiment Analyzer for the project Big Mood. Using the currently trending topics on twitter, we display the general mood of a location. This is done by retrieving tweets for trending hashtags and performing sentiment analysis using VADER sentiment analysis tool. 
 
 The steps given below will expose the trendsentiment endpoint which gets trending hashtags from BigMood-API. The sentiment for the trends is calculated and updated JSON schema is published to kafka and inserted to MongoDB. Logs can be viewed on Kibana. In addition to the steps below, we have setup CI-CD using TravisCI. <br>
-Read more about VADER [here](https://github.com/cjhutto/vaderSentiment)
 
 ## Getting Started
 
@@ -54,6 +53,13 @@ Run the docker container (replace image with the image name built above) : <br>
 
 
 ## Sentiment Analysis
+
+A lexicon and rule based sentiment analysis tool  called VADER is used to calculate sentiment scores. It has been known to be successful specifically when dealing with social media text and is fast to be used with streaming data. It also performs well with emojis, exclamation marks, slangs etc.  <br> 
+
+The `SentimentAnalyzer` class has functions that call the location service to get latitude and longitude for a city and uses the `TweetRetriver` get tweets for a city. In case of a country, tweets are retrieved using the twitter streaming api with the help of bounding boxes. The tweets are passed to the `polarity_scores()` method and polarity indices of the tweets are obtained. The compund score metric has been used to represent the overall sentiment of the tweet. This score varies from -1 (extremely negative) to +1 (extremely positive). <br>
+
+The reason for choosing this library over others was that it not just tells whether the text is positive or negative but also tells how positive or negative the text is. 
+
 
 ## Tweet Retrieval for City and Country
 
